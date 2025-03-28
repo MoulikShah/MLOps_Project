@@ -1,19 +1,19 @@
 # MLOps_Project
 
 
-## Title of project
+# Title of project
 
 <!-- 
 Discuss: Value proposition: Your will propose a machine learning system that can be 
 used in an existing business or service. (You should not propose a system in which 
 a new business or service would be developed around the machine learning system.) 
-Describe the value proposition for the machine learning system. What’s the (non-ML) 
+Describe the value proposition for the machine learning system. What's the (non-ML) 
 status quo used in the business or service? What business metric are you going to be 
-judged on? (Note that the “service” does not have to be for general users; you can 
+judged on? (Note that the "service" does not have to be for general users; you can 
 propose a system for a science problem, for example.)
 -->
 
-### Contributors
+## Contributors
 
 <!-- Table of contributors and their roles. 
 First row: define responsibilities that are shared by the team. 
@@ -30,14 +30,13 @@ link to their contributions in all repos here. -->
 | Team member 4 (if there is one) |                 |                                    |
 
 
-
-### System diagram
+## System diagram
 
 <!-- Overall digram of system. Doesn't need polish, does need to show all the pieces. 
 Must include: all the hardware, all the containers/software platforms, all the models, 
 all the data. -->
 
-### Summary of outside materials
+## Summary of outside materials
 
 <!-- In a table, a row for each dataset, foundation model. 
 Name of data/model, conditions under which it was created (ideally with links/references), 
@@ -51,7 +50,7 @@ conditions under which it may be used. -->
 | etc          |                    |                   |
 
 
-### Summary of infrastructure requirements
+## Summary of infrastructure requirements
 
 <!-- Itemize all your anticipated requirements: What (`m1.medium` VM, `gpu_mi100`), 
 how much/when, justification. Include compute, floating IPs, persistent storage. 
@@ -64,30 +63,29 @@ The table below shows an example, it is not a recommendation. -->
 | Floating IPs    | 1 for entire project duration, 1 for sporadic use |               |
 | etc             |                                                   |               |
 
-### Detailed design plan
+## Detailed design plan
 
 <!-- In each section, you should describe (1) your strategy, (2) the relevant parts of the 
 diagram, (3) justification for your strategy, (4) relate back to lecture material, 
 (5) include specific numbers. -->
 
-#### Model training and training platforms
+### Model training and training platforms
 
 <!-- Make sure to clarify how you will satisfy the Unit 4 and Unit 5 requirements, 
 and which optional "difficulty" points you are attempting. -->
 
-#### Model serving and monitoring platforms
+### Model serving and monitoring platforms
 
 <!-- Make sure to clarify how you will satisfy the Unit 6 and Unit 7 requirements, 
 and which optional "difficulty" points you are attempting. -->
 
-#### Data pipeline
+### Data pipeline
 
 <!-- Make sure to clarify how you will satisfy the Unit 8 requirements,  and which 
 optional "difficulty" points you are attempting. -->
 
-#### Continuous X
+### Continuous X
 
 <!-- Make sure to clarify how you will satisfy the Unit 3 requirements,  and which 
-optional "difficulty" points you are attempting. -->
-
+optional "difficulty" points you are attempting. --> 
 

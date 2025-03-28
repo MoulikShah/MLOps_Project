@@ -14,7 +14,7 @@ propose a system for a science problem, for example.)
 
 ## Contributors
 
-<!-- Table of contributors and their roles. 
+#Table of contributors and their roles. 
 First row: define responsibilities that are shared by the team. 
 Then, each row after that is: name of contributor, their role, and in the third column, 
 you will link to their contributions. If your project involves multiple repos, you will 
@@ -31,13 +31,13 @@ link to their contributions in all repos here. -->
 
 ## System diagram
 
-<!-- Overall digram of system. Doesn't need polish, does need to show all the pieces. 
+#Overall digram of system. Doesn't need polish, does need to show all the pieces. 
 Must include: all the hardware, all the containers/software platforms, all the models, 
 all the data. -->
 
 ## Summary of outside materials
 
-<!-- In a table, a row for each dataset, foundation model. 
+#In a table, a row for each dataset, foundation model. 
 Name of data/model, conditions under which it was created (ideally with links/references), 
 conditions under which it may be used. -->
 
@@ -51,7 +51,7 @@ conditions under which it may be used. -->
 
 ## Summary of infrastructure requirements
 
-<!-- Itemize all your anticipated requirements: What (`m1.medium` VM, `gpu_mi100`), 
+#Itemize all your anticipated requirements: What (`m1.medium` VM, `gpu_mi100`), 
 how much/when, justification. Include compute, floating IPs, persistent storage. 
 The table below shows an example, it is not a recommendation. -->
 
@@ -64,27 +64,27 @@ The table below shows an example, it is not a recommendation. -->
 
 ## Detailed design plan
 
-<!-- In each section, you should describe (1) your strategy, (2) the relevant parts of the 
+#In each section, you should describe (1) your strategy, (2) the relevant parts of the 
 diagram, (3) justification for your strategy, (4) relate back to lecture material, 
 (5) include specific numbers. -->
 
 ### Model training and training platforms
 
-<!-- Make sure to clarify how you will satisfy the Unit 4 and Unit 5 requirements, 
+#Make sure to clarify how you will satisfy the Unit 4 and Unit 5 requirements, 
 and which optional "difficulty" points you are attempting. -->
 
 ### Model serving and monitoring platforms
 
-<!-- Make sure to clarify how you will satisfy the Unit 6 and Unit 7 requirements, 
+#Make sure to clarify how you will satisfy the Unit 6 and Unit 7 requirements, 
 and which optional "difficulty" points you are attempting. -->
 
 ### Data pipeline
 
-<!-- Make sure to clarify how you will satisfy the Unit 8 requirements,  and which 
+#Make sure to clarify how you will satisfy the Unit 8 requirements,  and which 
 optional "difficulty" points you are attempting. -->
 
 ### Continuous X
 
-<!-- Make sure to clarify how you will satisfy the Unit 3 requirements,  and which 
+#Make sure to clarify how you will satisfy the Unit 3 requirements,  and which 
 optional "difficulty" points you are attempting. --> 
 

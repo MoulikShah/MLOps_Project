@@ -81,26 +81,38 @@ optional "difficulty" points you are attempting. -->
 ### Continuous X
 
 Infrastructure-as-Code:
+- All infrastructure is provisioned using Terraform for resources, IPs and volumes on Chameleon Cloud.
+- Ansible Playbooks are used to configure and deploy:
+  - Triton Inference Server
+  - MLflow
+  - Prometheus
+  - API services (FastAPI)
 
-All infrastructure is provisioned using Terraform for resources, IPs and volumes on Chameleon Cloud.
-  Ansible Playbooks are used to configure and deploy:
-    Triton Inference Server
-    MLflow
-    Prometheus
-    API services (FastAPI)
+Cloud-Native Architecture:
+- Immutable Infrastructure:
+  - Infrastructure changes are made via pull requests to Git, then re-provisioned.
+- Microservices:
+  - The system is split into containers: API Server, Inference, Monitoring, Training, Testing, Storage
+  - Each container communicates via APIs
+- Containerization:
+  - All services are Dockerized and deployed with Kubernetes.
+  - Model training and inference environments are decoupled and reproducible.
 
-Cloud-Native Architecture
-  - Immutable Infrastructure:
-    - Infrastructure changes are made via pull requests to Git, then re-provisioned.
-  - Microservices:
-    - The system is split into containers: API Server, Inference, Monitoring, Training, Testing, Storage
-    - Each container communicates via APIs
-  - Containerization:
-    - All services are Dockerized and deployed with Kubernetes.
-    - Model training and inference environments are decoupled and reproducible.
+CI/CD and Continuous Training Pipeline:
+- ArgoCD power our CI/CD and retraining pipelines:
+  - Triggered on schedule (ideally per semester to include new students).
 
-  - CI/CD and Continuous Training Pipeline
-    - GitHub Actions + Argo Workflows power our CI/CD and retraining pipelines:
-      - Triggered on schedule (ideally per semester to include new students)
+Staged Deployment:
+- Services will be promoted from one environment to another using AgroCD.
+- Staging:
+  - Load-tested with student entries.
+- Canary:
+  - Small percentage of live exam verifications pass through new model.
+  - Metrics monitored via Prometheus.
+- Production:
+  - Model promoted if no degradation is observed during canary phase.
+
+
+
 
 

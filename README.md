@@ -1,16 +1,18 @@
 # MLOps_Project
 
 
-## Title of project
+## Facial Recognition system for student authentication at NYU
 
 # 
-Discuss: Value proposition: Your will propose a machine learning system that can be 
-used in an existing business or service. (You should not propose a system in which 
-a new business or service would be developed around the machine learning system.) 
-Describe the value proposition for the machine learning system. What's the (non-ML) 
-status quo used in the business or service? What business metric are you going to be 
-judged on? (Note that the "service" does not have to be for general users; you can 
-propose a system for a science problem, for example.)
+Value proposition: 
+A facial recognition system will be used for authentication for exams/tests at NYU. This will act as a 2 factor authentication along with the user’s ID card, ensuring that there is no cheating during the exam.
+
+Status Quo: Currently no attendance system or official system exists for verifying student identities. If any class did decide to take attendance manually, it would be hard to verify and take a lot of time
+
+Business metrics:
+Security - Unauthorized students will not be able to enter the testing area.
+Efficiency - Manual attendance and student verification is time consuming and will take unnecessary manpower
+Scalability - This verification will scale well for Online exams, where faces can be checked at one time, if needed to explore in the future
 
 ## Contributors
 
@@ -37,16 +39,12 @@ all the data. -->
 
 ## Summary of outside materials
 
-#In a table, a row for each dataset, foundation model. 
-Name of data/model, conditions under which it was created (ideally with links/references), 
-conditions under which it may be used. -->
-
 |              | How it was created | Conditions of use |
 |--------------|--------------------|-------------------|
-| Data set 1   |                    |                   |
-| Data set 2   |                    |                   |
-| Base model 1 |                    |                   |
-| etc          |                    |                   |
+| MS1MV2       |  	Cleaned and refined MS-Celeb-1M dataset (~5.8M images, 85K IDs)                  |       Free for use           |
+| VGGFace2     |    Collected via Google Images; 3.3M images, 9K+ identities                |         Research only          |
+| iResNet-50   |    Deep residual network trained on large face datasets               |          Open-source         |
+| MTCNN        |    Trained on various public datasets, by MIT                |         Open source         |
 
 
 ## Summary of infrastructure requirements

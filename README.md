@@ -80,6 +80,27 @@ optional "difficulty" points you are attempting. -->
 
 ### Continuous X
 
-#Make sure to clarify how you will satisfy the Unit 3 requirements,  and which 
-optional "difficulty" points you are attempting. --> 
+Infrastructure-as-Code:
+
+All infrastructure is provisioned using Terraform for resources, IPs and volumes on Chameleon Cloud.
+  Ansible Playbooks are used to configure and deploy:
+    Triton Inference Server
+    MLflow
+    Prometheus
+    API services (FastAPI)
+
+Cloud-Native Architecture
+  - Immutable Infrastructure:
+    - Infrastructure changes are made via pull requests to Git, then re-provisioned.
+  - Microservices:
+    - The system is split into containers: API Server, Inference, Monitoring, Training, Testing, Storage
+    - Each container communicates via APIs
+  - Containerization:
+    - All services are Dockerized and deployed with Kubernetes.
+    - Model training and inference environments are decoupled and reproducible.
+
+  - CI/CD and Continuous Training Pipeline
+    - GitHub Actions + Argo Workflows power our CI/CD and retraining pipelines:
+      - Triggered on schedule (ideally per semester to include new students)
+
 

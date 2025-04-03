@@ -49,17 +49,13 @@ all the data. -->
 
 ## Summary of infrastructure requirements
 
-#Itemize all your anticipated requirements: What (`m1.medium` VM, `gpu_mi100`), 
-how much/when, justification. Include compute, floating IPs, persistent storage. 
-The table below shows an example, it is not a recommendation. -->
-
 | Requirement     | How many/when                                     | Justification |
 |-----------------|---------------------------------------------------|---------------|
 | 'compute_skylake' | 2 for entire project                   | 1 in model serving and 1 for model evaluation and load testing           |
 | `gpu_v100`     | 4 gpus/ 4 slots of 5 hours                        |       Required for training the ResNet-50 for the large database        |
 | Floating IPs    | 2 running perpetually |               |    1 for model serving api, 1 for monitoring while training, testing and serving
-| Persistent Volume  - 'block storage'   |                1 volume - 50GB                                  |       Needed to store model checkpoints, logs, retrained models, and OpenVINO outputs        |
-| Object Storage 'CHI@TACC Swift' |   1 
+| Persistent Volume  - 'block storage'   |                1 volume - 10GB                                  |       Needed to store model checkpoints, logs, retrained models, and OpenVINO outputs        |
+| Object Storage 'CHI@TACC Swift' |   1 volume - 50GB     |  Storing the static dataset
 
 ## Detailed design plan
 

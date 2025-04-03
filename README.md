@@ -75,8 +75,49 @@ and which optional "difficulty" points you are attempting. -->
 
 ### Data pipeline
 
-#Make sure to clarify how you will satisfy the Unit 8 requirements,  and which 
-optional "difficulty" points you are attempting. -->
+Persistent Storage
+
+- We provision block storage volumes on **Chameleon Cloud** that are mounted to both training and inference nodes.
+
+- Storage is independent of containers, so data is preserved even if compute instances are recreated. It will be used to store:
+  - Model checkpoints
+  - Final trained models
+  - Training logs and evaluation metrics
+
+---
+
+Offline Data Management
+
+- Offline data includes:
+  - Pre-registered student facial images
+  - Synthetic images for model robustness evaluation
+  - Public datasets for pretraining
+
+- Copy of the above-mentioned data will be stored on persistent disk
+
+---
+
+Data Pipelines
+
+- Extract:
+  - Images from the dataset are stored in persistent storage
+
+- Transform:
+  - Preprocessing: resize, normalize, encode to embeddings
+  - Label verification or correction
+  - Format conversion to model input structure
+
+- Load:
+  - Transformed data is moved and loaded for the model to train on
+
+- False positives and false negatives from user feedback from the inference node will be moved to persistent storage to be used in re-training
+
+---
+
+Online Data
+
+- A simulated stream mimics real-time images captured at exam entry gates
+
 
 ### Continuous X
 
@@ -87,6 +128,8 @@ Infrastructure-as-Code:
   - MLflow
   - Prometheus
   - API services (FastAPI)
+ 
+---
 
 Cloud-Native Architecture:
 - Immutable Infrastructure:
@@ -98,9 +141,13 @@ Cloud-Native Architecture:
   - All services are Dockerized and deployed with Kubernetes.
   - Model training and inference environments are decoupled and reproducible.
 
+---
+
 CI/CD and Continuous Training Pipeline:
 - ArgoCD power our CI/CD and retraining pipelines:
   - Triggered on schedule (ideally per semester to include new students).
+
+---
 
 Staged Deployment:
 - Services will be promoted from one environment to another using AgroCD.

@@ -55,10 +55,11 @@ The table below shows an example, it is not a recommendation. -->
 
 | Requirement     | How many/when                                     | Justification |
 |-----------------|---------------------------------------------------|---------------|
-| `m1.medium` VMs | 3 for entire project duration                     | ...           |
-| `gpu_mi100`     | 4 hour block twice a week                         |               |
-| Floating IPs    | 1 for entire project duration, 1 for sporadic use |               |
-| etc             |                                                   |               |
+| 'compute_skylake' | 2 for entire project                   | 1 in model serving and 1 for model evaluation and load testing           |
+| `gpu_v100`     | 4 gpus/ 4 slots of 5 hours                        |       Required for training the ResNet-50 for the large database        |
+| Floating IPs    | 2 running perpetually |               |    1 for model serving api, 1 for monitoring while training, testing and serving
+| Persistent Volume  - 'block storage'   |                1 volume - 50GB                                  |       Needed to store model checkpoints, logs, retrained models, and OpenVINO outputs        |
+| Object Storage 'CHI@TACC Swift' |   1 
 
 ## Detailed design plan
 

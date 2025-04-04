@@ -4,7 +4,7 @@
 ## Facial Recognition system for student authentication at NYU
 
 # 
-Value proposition: 
+Value proposition: <br>
 A facial recognition system will be used for authentication for exams/tests at NYU. This will act as a 2 factor authentication along with the user’s ID card, ensuring that there is no cheating during the exam.
 
 Status Quo: Currently no attendance system or official system exists for verifying student identities. If any class did decide to take attendance manually, it would be hard to verify and take a lot of time

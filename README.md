@@ -64,8 +64,81 @@ and which optional "difficulty" points you are attempting. -->
 
 ### Model serving and monitoring platforms
 
-#Make sure to clarify how you will satisfy the Unit 6 and Unit 7 requirements, 
-and which optional "difficulty" points you are attempting. -->
+#### Serving from an API endpoint:
+During serving, a FastAPI endpoint will exist through which we will get a request from the user (input) and return the result, i.e. verified or not (output)
+
+#### Model Requirements:
+We will have 2 instances of our model, one with high throughput and concurrency for online exams multiple students will check in at the same time for an exam, and one with concurrency 1 for offline exams as students will check in one at a time at one exam hall  
+Size: 100MB  
+**Throughput:**  
+In person exams - 100-200 req/second (low concurrency)  
+Online exams - 800 req/second (high concurrency and dynamic batching)  
+
+**Single sample latency:** predicting a latency of 10-20ms  
+**Concurrency requirement:**  
+- Concurrency of 1 for offline exams  
+- Concurrency of 8 for online exams  
+
+#### Model optimizations to satisfy requirements:
+Since we want to explore and use different optimization techniques and execution providers, we will be converting our model to Onnx format.
+
+**Graph optimizations:** We will be using graph optimizations like fusing - combining common subsequent operations and constant folding - precomputing operations where inputs are constant.  
+Since these optimizations don't reduce performance, we will implement them.
+
+**Quantizations:** Since we require high accuracy and are trying to prevent false negatives we will experiment with conservative quantization but will most likely not use any quantization techniques.
+
+#### System optimizations to satisfy requirements:
+**Backend:** We will use the triton inference server as the backend as it is optimized for high throughput, it has inbuilt support for concurrency and monitoring with prometheus and support for different execution providers.
+**OpenVino:** We will use the OpenVino EP which is optimized for intel CPUs for high throughput on CPU hardware.  
+
+---
+
+#### Multiple options for serving:
+We will have 2 options for serving:  
+- 1 model will be served with a high concurrency with dynamic batching for evaluation in online exams where multiple students at the same exam will be scanning at the same time.  
+- 1 model will be served with a concurrency of 1 since it will be needed for a throughput of only 150-250 req/sec
+
+---
+
+
+#### Offline evaluation of model:
+We will have a suit of offline tests that will run immediately after the model training and unit testing. These tests will be triggered automatically via an internal api between the training and testing microservices.  
+**Standard and domain specific tests:** This will be from the VGGFace2 dataset subset with appropriate weightage of people types similar to that in production (e.g. ethnic distributions specific to NYU)  
+**Population and slices:** We will create mini sets of different types of data, like different ethnicities, skin colours, facial hair, lighting conditions  
+**Known Failure cases:** We will consider bad fail cases to test against like blurry photos, bad lighting, similar faces of different people.
+
+The results of this testing and evaluation will be automatically saved in MLFlow which will be accessed from a through a floating IP. If a certain threshold of each test type is passed, the model will be automatically saved to the model registry via MLFlow.
+
+---
+
+#### Load test in staging:
+Once the model accuracy in different conditions has been validated, we will now stress test our model to see if it matches our throughput and latency requirements in the same environment as our production/serving environment, i.e. Triton server with OpenVino on the compute_skylake node.
+
+**Load testing will be done in 2 ways:**  
+- Testing for the single concurrency model which is served for offline exams, required throughput - > 150 req/sec and latency < 100ms  
+- Testing for multiple concurrency of 8 with dynamic batching for online exams, required throughput > 750 req/sec and latency < 500ms  
+(Since people will not be lining up in online exams behind the camera a higher latency per user is not a huge deal)
+
+---
+
+#### Online evaluation in canary
+During the canary rollout, the new model is deployed to a limited number of exam entry gates to assess its performance in real-world conditions before full-scale deployment. This phase simulates actual student behavior, including scenarios such as poor lighting, delays in entry, and multiple verification attempts caused by initial misdetections. The purpose is to observe how the model performs under imperfect and variable conditions, ensuring robustness and reliability before promotion to production.
+
+---
+
+#### Close the loop:
+There will be feedback from the user via a separate API, which will automatically register incorrect evaluations (False Negatives) when a proctor has to verify a correct identity which is not verified by the model or when the user needs multiple tries to pass the verification.  
+In addition to this, when new users are added to the database, cameras will pick up facial data during class for the scheduled retraining. This data will finish the feedback loop for model retraining, which will happen automatically when the model performance in monitoring is deteriorated to a certain extent or a large number of new users are added.
+
+---
+
+#### Business specific metrics:
+- Improvement in security and reduced fraud/cheating:
+There should be a reduction in imposter’s caught by proctors in the exam hall or in online exams.
+
+- Efficiency:
+In place of taking manual attendance we should see a much faster system with automated attendance. If we record two groups, one with manual attendance and one with the ML system, we should see a decrease in total time for conducting the examination.
+
 
 ### Data pipeline
 

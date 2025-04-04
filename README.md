@@ -24,11 +24,11 @@ link to their contributions in all repos here. -->
 
 | Name                            | Responsible for | Link to their commits in this repo |
 |---------------------------------|-----------------|------------------------------------|
-| All team members                |                 |                                    |
-| Megh Panandikar                 |                 |                                    |
-| Moulik Shah                     |                 |                                    |
-| Aryan Tomar                     |                 |                                    |
-| Yash Amin                       |                 |                                    |
+| All team members                |   System diagram, Planning                   |                                    |
+| Megh Panandikar                 |   Model serving  and Monitoring              |  https://github.com/MoulikShah/MLOps_Project/commits/main/?author=megh2001   |
+| Moulik Shah                     |   Data pipeline                              |  https://github.com/MoulikShah/MLOps_Project/commits/main/?author=MoulikShah |
+| Aryan Tomar                     |   Model training                             |  https://github.com/MoulikShah/MLOps_Project/commits/main/?author=aryntmr    |
+| Yash Amin                       |   Continuous X pipeline                      |  https://github.com/MoulikShah/MLOps_Project/commits/main/?author=Yash-5865  |
 
 
 ## System diagram

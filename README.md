@@ -45,17 +45,14 @@ all the data. -->
 
 | Requirement     | How many/when                                     | Justification |
 |-----------------|---------------------------------------------------|---------------|
-| 'compute_skylake' | 2 for entire project                   | 1 in model serving and 1 for model evaluation and load testing           |
+| `compute_skylake` | 2 for entire project                           | 1 in model serving and 1 for model evaluation and load testing           |
 | `gpu_v100`     | 4 gpus/ 4 slots of 5 hours                        |       Required for training the ResNet-50 for the large database        |
-| Floating IPs    | 2 running perpetually |               |    1 for model serving api, 1 for monitoring while training, testing and serving
+| Floating IPs    | 2 running throghout the project                |    1 for model serving api, 1 for monitoring while training, testing and serving  |
 | Persistent Volume  - 'block storage'   |                1 volume - 10GB                                  |       Needed to store model checkpoints, logs, retrained models, and OpenVINO outputs        |
 | Object Storage 'CHI@TACC Swift' |   1 volume - 50GB     |  Storing the static dataset
 
 ## Detailed design plan
-
-#In each section, you should describe (1) your strategy, (2) the relevant parts of the 
-diagram, (3) justification for your strategy, (4) relate back to lecture material, 
-(5) include specific numbers. -->
+---
 
 ### Model training and infrastructure platforms
 
@@ -70,6 +67,8 @@ diagram, (3) justification for your strategy, (4) relate back to lecture materia
 - We will containerize our environment with Docker, including all dependencies (Python, PyTorch, dataset libraries) to ensure reproducibility. MLFlow will track experiments (parameters, metrics, checkpoints, code versions) via a tracking server accessible through a specified port.
 - For distributed training, we will explore Ray and potentially Ray Tune for hyperparameter tuning, following lab instructions for setup and job submission.
 - The face recognition datasets (MS1MV2 and VGGFace2) will be properly organized and mounted for access within the container. GPU and system performance will be monitored via Jupyter or the Chameleon dashboard, and resources will be properly released after training to avoid extra costs.
+
+---
 
 ### Model serving and monitoring platforms
 
@@ -97,7 +96,7 @@ Since these optimizations don't reduce performance, we will implement them.
 **Quantizations:** Since we require high accuracy and are trying to prevent false negatives we will experiment with conservative quantization but will most likely not use any quantization techniques.
 
 #### System optimizations to satisfy requirements:
-**Backend:** We will use the triton inference server as the backend as it is optimized for high throughput, it has inbuilt support for concurrency and monitoring with prometheus and support for different execution providers.
+**Backend:** We will use the triton inference server as the backend as it is optimized for high throughput, it has inbuilt support for concurrency and monitoring with prometheus and support for different execution providers.  
 **OpenVino:** We will use the OpenVino EP which is optimized for intel CPUs for high throughput on CPU hardware.  
 
 ---
@@ -108,7 +107,6 @@ We will have 2 options for serving:
 - 1 model will be served with a concurrency of 1 since it will be needed for a throughput of only 150-250 req/sec
 
 ---
-
 
 #### Offline evaluation of model:
 We will have a suit of offline tests that will run immediately after the model training and unit testing. These tests will be triggered automatically via an internal api between the training and testing microservices.  
@@ -142,19 +140,19 @@ In addition to this, when new users are added to the database, cameras will pick
 ---
 
 #### Business specific metrics:
-- Improvement in security and reduced fraud/cheating:
+- Improvement in security and reduced fraud/cheating:  
 There should be a reduction in imposter’s caught by proctors in the exam hall or in online exams.
 
-- Efficiency:
+- Efficiency:  
 In place of taking manual attendance we should see a much faster system with automated attendance. If we record two groups, one with manual attendance and one with the ML system, we should see a decrease in total time for conducting the examination.
 
+---
 
 ### Data pipeline
 
-Persistent Storage
+#### Persistent Storage
 
 - We provision block storage volumes on **Chameleon Cloud** that are mounted to both training and inference nodes.
-
 - Storage is independent of containers, so data is preserved even if compute instances are recreated. It will be used to store:
   - Model checkpoints
   - Final trained models
@@ -162,80 +160,79 @@ Persistent Storage
 
 ---
 
-Offline Data Management
+#### Offline Data Management
 
 - Offline data includes:
   - Pre-registered student facial images
   - Synthetic images for model robustness evaluation
   - Public datasets for pretraining
-
 - Copy of the above-mentioned data will be stored on persistent disk
 
 ---
 
-Data Pipelines
+#### Data Pipelines
 
-- Extract:
+- **Extract**:
   - Images from the dataset are stored in persistent storage
-
-- Transform:
+- **Transform**:
   - Preprocessing: resize, normalize, encode to embeddings
   - Label verification or correction
   - Format conversion to model input structure
-
-- Load:
+- **Load**:
   - Transformed data is moved and loaded for the model to train on
-
 - False positives and false negatives from user feedback from the inference node will be moved to persistent storage to be used in re-training
 
 ---
 
-Online Data
+#### Online Data
 
 - A simulated stream mimics real-time images captured at exam entry gates
 
+---
 
 ### Continuous X
 
-Infrastructure-as-Code:
+#### Infrastructure-as-Code
+
 - All infrastructure is provisioned using Terraform for resources, IPs and volumes on Chameleon Cloud.
 - Ansible Playbooks are used to configure and deploy:
   - Triton Inference Server
   - MLflow
   - Prometheus
   - API services (FastAPI)
- 
+
 ---
 
-Cloud-Native Architecture:
-- Immutable Infrastructure:
+#### Cloud-Native Architecture
+
+- **Immutable Infrastructure**:
   - Infrastructure changes are made via pull requests to Git, then re-provisioned.
-- Microservices:
+- **Microservices**:
   - The system is split into containers: API Server, Inference, Monitoring, Training, Testing, Storage
   - Each container communicates via APIs
-- Containerization:
+- **Containerization**:
   - All services are Dockerized and deployed with Kubernetes.
   - Model training and inference environments are decoupled and reproducible.
 
 ---
 
-CI/CD and Continuous Training Pipeline:
+#### CI/CD and Continuous Training Pipeline
+
 - ArgoCD power our CI/CD and retraining pipelines:
   - Triggered on schedule (ideally per semester to include new students).
 
 ---
 
-Staged Deployment:
+#### Staged Deployment
+
 - Services will be promoted from one environment to another using AgroCD.
-- Staging:
+- **Staging**:
   - Load-tested with student entries.
-- Canary:
+- **Canary**:
   - Small percentage of live exam verifications pass through new model.
   - Metrics monitored via Prometheus.
-- Production:
+- **Production**:
   - Model promoted if no degradation is observed during canary phase.
-
-
 
 
 

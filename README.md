@@ -10,9 +10,9 @@ A facial recognition system will be used for authentication for exams/tests at N
 Status Quo: Currently no attendance system or official system exists for verifying student identities. If any class did decide to take attendance manually, it would be hard to verify and take a lot of time
 
 Business metrics:
-Security - Unauthorized students will not be able to enter the testing area.
-Efficiency - Manual attendance and student verification is time consuming and will take unnecessary manpower
-Scalability - This verification will scale well for Online exams, where faces can be checked at one time, if needed to explore in the future
+- Security: Unauthorized students will not be able to enter the testing area.
+- Efficiency: Manual attendance and student verification is time consuming and will take unnecessary manpower
+- Scalability: This verification will scale well for Online exams, where faces can be checked at one time, if needed to explore in the future
 
 ## Contributors
 

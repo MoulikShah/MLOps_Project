@@ -57,7 +57,7 @@ all the data. -->
 diagram, (3) justification for your strategy, (4) relate back to lecture material, 
 (5) include specific numbers. -->
 
-### Model training and training platforms
+### Model training and infrastructure platforms
 
 - We will employ mini-batch Stochastic Gradient Descent (SGD) for training, with the batch size determined by GPU memory. Gradient accumulation will be explored to simulate larger batch sizes if memory becomes a constraint.
 - To optimize memory usage, we will consider mixed-precision training (FP16 gradients with an FP32 optimizer) and monitor the memory footprint of the chosen optimizer.

@@ -30,7 +30,7 @@ Business metrics:
 #Overall digram of system. Doesn't need polish, does need to show all the pieces. 
 Must include: all the hardware, all the containers/software platforms, all the models, 
 all the data. -->
-![System Diagram](images/system_diagram.png)
+![System Diagram](MLOps.jpg)
 
 
 ## Summary of outside materials

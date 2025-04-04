@@ -59,8 +59,17 @@ diagram, (3) justification for your strategy, (4) relate back to lecture materia
 
 ### Model training and training platforms
 
-#Make sure to clarify how you will satisfy the Unit 4 and Unit 5 requirements, 
-and which optional "difficulty" points you are attempting. -->
+- We will employ mini-batch Stochastic Gradient Descent (SGD) for training, with the batch size determined by GPU memory. Gradient accumulation will be explored to simulate larger batch sizes if memory becomes a constraint.
+- To optimize memory usage, we will consider mixed-precision training (FP16 gradients with an FP32 optimizer) and monitor the memory footprint of the chosen optimizer.
+- To accelerate training, we will implement distributed data parallelism across multiple GPUs available on Chameleon. This involves:
+  - Replicating the model across each GPU.
+  - Dividing the training data into slices, with each GPU processing a different slice.
+  - Synchronizing gradients across all GPUs using an all-reduce operation to ensure consistent model updates.
+  - Utilizing PyTorch Distributed to manage data distribution and gradient communication.
+- Training will be conducted on the Chameleon cloud platform using bare-metal GPU nodes (gpu_mi100 for AMD, compute_liquid for NVIDIA A100), acquired through time-limited leases. A Jupyter notebook server on a reserved instance will be used for interactive development.
+- We will containerize our environment with Docker, including all dependencies (Python, PyTorch, dataset libraries) to ensure reproducibility. MLFlow will track experiments (parameters, metrics, checkpoints, code versions) via a tracking server accessible through a specified port.
+- For distributed training, we will explore Ray and potentially Ray Tune for hyperparameter tuning, following lab instructions for setup and job submission.
+- The face recognition datasets (MS1MV2 and VGGFace2) will be properly organized and mounted for access within the container. GPU and system performance will be monitored via Jupyter or the Chameleon dashboard, and resources will be properly released after training to avoid extra costs.
 
 ### Model serving and monitoring platforms
 

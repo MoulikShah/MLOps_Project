@@ -1,4 +1,4 @@
-# MLOps_Project
+# MLOps Project
 
 
 ## Facial Recognition system for student authentication at NYU

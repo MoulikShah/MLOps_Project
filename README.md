@@ -39,6 +39,7 @@ Business metrics:
 | iResNet-50   |    Deep residual network trained on large face datasets               |          Open-source         |
 | MTCNN        |    Trained on various public datasets, by MIT                |         Open source         |
 
+Common dataset link: https://github.com/deepinsight/insightface/tree/master/recognition/_datasets_
 
 ## Summary of infrastructure requirements
 

@@ -1,12 +1,15 @@
 import os
-import shutil
+import json
 from deepface import DeepFace
 import cv2
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+# Input directory and output JSON file path
+input_dir = "/home/aryan/FSCIL/datasets/ms1m"  # Replace with the path to your dataset
+output_json = "identity_race_mapping.json"
 
-# Input and output directories
-input_dir = "path_to_dataset"  # Replace with the path to your dataset
-output_dir = "sorted_by_race"
-os.makedirs(output_dir, exist_ok=True)
+# Dictionary to store identity to race mapping
+identity_race_map = {}
+race_count = {}
 
 # Iterate through each identity folder
 for identity_folder in os.listdir(input_dir):
@@ -30,21 +33,22 @@ for identity_folder in os.listdir(input_dir):
         result = DeepFace.analyze(img, actions=['race'], enforce_detection=False)
         dominant_race = result[0]['dominant_race']
 
-        # Create a directory for the race if it doesn't exist
-        race_dir = os.path.join(output_dir, dominant_race)
-        os.makedirs(race_dir, exist_ok=True)
+        # Add to dictionary
+        identity_race_map[identity_folder] = dominant_race
+        if dominant_race in race_count:
+            race_count[dominant_race] += 1
+        else:
+            race_count[dominant_race] = 0
 
-        # Create a directory for the identity within the race folder
-        identity_race_dir = os.path.join(race_dir, identity_folder)
-        os.makedirs(identity_race_dir, exist_ok=True)
-
-        # Copy all images from the identity folder to the new race-based folder
-        for img_file in images:
-            src_path = os.path.join(identity_path, img_file)
-            dst_path = os.path.join(identity_race_dir, img_file)
-            shutil.copy(src_path, dst_path)
 
     except Exception as e:
         print(f"Error processing folder {identity_folder}: {str(e)}")
 
-print(f"Images sorted by race and saved in: {output_dir}")
+# Save the dictionary to a JSON file
+with open(output_json, 'w') as f:
+    json.dump(identity_race_map, f, indent=4)
+
+print(f"Race classification mapping saved in: {output_json}")
+
+for each in race_count:
+    print(each, race_count[each])

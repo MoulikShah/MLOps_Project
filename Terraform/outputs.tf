@@ -1,4 +1,9 @@
-output "floating_ip_out" {
-  description = "Floating IP assigned to node1"
+output "floating_ips_skylake" {
+  description = "Skylake floating IPs"
   value       = openstack_networking_floatingip_v2.floating_ip.address
+}
+
+output "skylake_instance_id" {
+  description = "Skylake compute instance ID"
+  value       = openstack_compute_instance_v2.skylake.id
 }

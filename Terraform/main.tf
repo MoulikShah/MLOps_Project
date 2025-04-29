@@ -42,7 +42,7 @@ resource "openstack_compute_instance_v2" "nodes" {
 
   name        = "${each.key}-mlops-${var.suffix}"
   image_name  = "CC-Ubuntu24.04"
-  flavor_name = "m1.medium"
+  flavor_name = "baremetal"
   key_pair    = var.key
 
   network {

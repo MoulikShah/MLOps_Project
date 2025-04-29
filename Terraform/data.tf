@@ -1,7 +1,7 @@
-data "openstack_networking_network_v2" "public" {
+data "openstack_networking_network_v2" "sharednet3" {
   name = "sharednet3"
 }
-data "openstack_networking_subnet_v2" "public_subnet" {
+data "openstack_networking_subnet_v2" "sharednet3_subnet" {
   name = "sharednet3-subnet"
 }
 

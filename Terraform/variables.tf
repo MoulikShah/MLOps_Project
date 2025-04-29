@@ -27,3 +27,9 @@ variable "flavor_skylake" {
   type        = string
   default     = "baremetal"
 }
+
+variable "skylake_id" {
+  description = "Blazar reservation ID for Skylake"
+  type        = string
+  default     = "1fcec558-6f4d-4263-bf3b-eb06d7b959f7"
+}

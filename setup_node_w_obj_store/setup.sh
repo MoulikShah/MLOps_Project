@@ -59,7 +59,7 @@ else
 fi
 
 # 9. Create docker-compose.yml locally
-docker run -d --rm \
+sudo docker run -d --rm \
   --privileged \
   -p 8888:8888 \
   --shm-size 8G \

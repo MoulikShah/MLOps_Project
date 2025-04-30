@@ -1,3 +1,3 @@
-[submodule "Ansible/ansible/k8s"]
-	path = Ansible/ansible/k8s
+[submodule "Ansible/k8s/kubespray"]
+	path = Ansible/k8s/kubespray
 	url = https://github.com/kubernetes-sigs/kubespray.git

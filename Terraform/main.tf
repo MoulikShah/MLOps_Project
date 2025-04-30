@@ -27,7 +27,13 @@ resource "openstack_networking_port_v2" "sharednet1_ports" {
     name       = "sharednet1-${each.key}-mlops-${var.suffix}"
     network_id = data.openstack_networking_network_v2.sharednet1.id
     security_group_ids = [
-      data.openstack_networking_secgroup_v2.default_sg.id
+      data.openstack_networking_secgroup_v2.allow_ssh.id,
+      data.openstack_networking_secgroup_v2.allow_9001.id,
+      data.openstack_networking_secgroup_v2.allow_8000.id,
+      data.openstack_networking_secgroup_v2.allow_8080.id,
+      data.openstack_networking_secgroup_v2.allow_8081.id,
+      data.openstack_networking_secgroup_v2.allow_http_80.id,
+      data.openstack_networking_secgroup_v2.allow_9090.id
     ]
 }
 
@@ -36,7 +42,7 @@ resource "openstack_compute_instance_v2" "nodes" {
 
   name        = "${each.key}-mlops-${var.suffix}"
   image_name  = "CC-Ubuntu24.04"
-  flavor_name = "baremetal"
+  flavor_name = "m1.medium"
   key_pair    = var.key
 
   network {

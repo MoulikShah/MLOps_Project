@@ -1,3 +1,3 @@
 provider "openstack" {
-  cloud = "uc"
+  cloud = "openstack"
 }

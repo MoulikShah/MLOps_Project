@@ -22,3 +22,4 @@ Run:
 bash <(curl -fsSL https://raw.githubusercontent.com/MoulikShah/MLOps_Project/main/setup_node_w_obj_store/setup.sh)  
   
 Now enter the Jupyter environment with the url with floating IP and run your experiments  
+URL: http://129.114.26.204:8888/lab?

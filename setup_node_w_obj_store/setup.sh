@@ -78,4 +78,3 @@ sudo docker run -d --rm \
   --ServerApp.default_url=/lab
 
 echo "✅  docker-compose.yml created successfully."
-

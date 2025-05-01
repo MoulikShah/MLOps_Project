@@ -28,34 +28,27 @@ else
   echo "✅  rclone.conf found."
 fi
 
-# 5. Create /mnt/object and mount object storage
+# 5. Create /mnt/object and safely mount object storage
 echo "Preparing /mnt/object mount point..."
 sudo mkdir -p /mnt/object
-sudo chown $USER:$USER /mnt/object || true
 
 # Unmount if already mounted
 if mountpoint -q /mnt/object; then
   echo "⚠️  /mnt/object already mounted. Unmounting..."
-  fusermount -u /mnt/object || sudo umount /mnt/object
-  sleep 1
+  if command -v fusermount &> /dev/null; then
+    fusermount -u /mnt/object || true
+  fi
+  sudo umount /mnt/object || true
+
+  while mountpoint -q /mnt/object; do
+    echo "⏳ Waiting for /mnt/object to unmount..."
+    sleep 1
+  done
+  echo "✅  Unmounted /mnt/object."
 fi
 
 echo "🔗  Mounting object storage..."
-rclone mount chi_tacc:object-persist-project-14 /mnt/object \
-  --allow-other \
-  --read-only \
-  --daemon \
-  --dir-cache-time=72h \
-  --poll-interval=1m \
-  --vfs-cache-mode=off \
-  --attr-timeout=1s \
-  --no-modtime \
-  --max-read-ahead=64k \
-  --rc \
-  --rc-no-auth \
-  --vfs-read-chunk-size=128M \
-  --vfs-read-chunk-size-limit=2G \
-  --log-level INFO
+rclone mount chi_tacc:object-persist-project-14 /mnt/object --allow-other --read-only --daemon
 
 # 6. Ensure faces_dataset exists inside object store
 if [ ! -d /mnt/object/faces_dataset ]; then
@@ -80,11 +73,10 @@ else
   echo "✅  Docker already installed."
 fi
 
-# 9. Run Jupyter container
-# Remove existing container if any
+# 9. Start Jupyter container
+echo "🚀  Starting Jupyter container..."
 docker rm -f jupyter 2>/dev/null || true
 
-echo "🚀  Starting Jupyter container..."
 docker run -d --rm \
   --privileged \
   -p 8888:8888 \

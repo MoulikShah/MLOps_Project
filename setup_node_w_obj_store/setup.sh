@@ -29,10 +29,18 @@ else
 fi
 
 # 5. Create /mnt/object and mount object storage
-echo "Mounting object storage..."
+echo "Preparing /mnt/object mount point..."
 sudo mkdir -p /mnt/object
 sudo chown $USER:$USER /mnt/object || true
 
+# Unmount if already mounted
+if mountpoint -q /mnt/object; then
+  echo "⚠️  /mnt/object already mounted. Unmounting..."
+  fusermount -u /mnt/object || sudo umount /mnt/object
+  sleep 1
+fi
+
+echo "🔗  Mounting object storage..."
 rclone mount chi_tacc:object-persist-project-14 /mnt/object --allow-other --read-only --daemon
 
 # 6. Ensure faces_dataset exists inside object store
@@ -58,8 +66,12 @@ else
   echo "✅  Docker already installed."
 fi
 
-# 9. Create docker-compose.yml locally
-sudo docker run -d --rm \
+# 9. Run Jupyter container
+# Remove existing container if any
+docker rm -f jupyter 2>/dev/null || true
+
+echo "🚀  Starting Jupyter container..."
+docker run -d --rm \
   --privileged \
   -p 8888:8888 \
   --shm-size 8G \
@@ -77,4 +89,4 @@ sudo docker run -d --rm \
   --ServerApp.root_dir=/home/jovyan \
   --ServerApp.default_url=/lab
 
-echo "✅  docker-compose.yml created successfully."
+echo "✅  Jupyter container started successfully."

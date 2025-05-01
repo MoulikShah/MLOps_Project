@@ -41,7 +41,21 @@ if mountpoint -q /mnt/object; then
 fi
 
 echo "🔗  Mounting object storage..."
-rclone mount chi_tacc:object-persist-project-14 /mnt/object --allow-other --read-only --daemon
+rclone mount chi_tacc:object-persist-project-14 /mnt/object \
+  --allow-other \
+  --read-only \
+  --daemon \
+  --dir-cache-time=72h \
+  --poll-interval=1m \
+  --vfs-cache-mode=off \
+  --attr-timeout=1s \
+  --no-modtime \
+  --max-read-ahead=64k \
+  --rc \
+  --rc-no-auth \
+  --vfs-read-chunk-size=128M \
+  --vfs-read-chunk-size-limit=2G \
+  --log-level INFO
 
 # 6. Ensure faces_dataset exists inside object store
 if [ ! -d /mnt/object/faces_dataset ]; then

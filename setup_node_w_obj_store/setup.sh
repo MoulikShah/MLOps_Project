@@ -28,26 +28,11 @@ else
   echo "✅  rclone.conf found."
 fi
 
-# 5. Create /mnt/object and safely mount object storage
-echo "Preparing /mnt/object mount point..."
+# 5. Create /mnt/object and mount object storage
+echo "Mounting object storage..."
 sudo mkdir -p /mnt/object
+sudo chown $USER:$USER /mnt/object || true
 
-# Unmount if already mounted
-if mountpoint -q /mnt/object; then
-  echo "⚠️  /mnt/object already mounted. Unmounting..."
-  if command -v fusermount &> /dev/null; then
-    fusermount -u /mnt/object || true
-  fi
-  sudo umount /mnt/object || true
-
-  while mountpoint -q /mnt/object; do
-    echo "⏳ Waiting for /mnt/object to unmount..."
-    sleep 1
-  done
-  echo "✅  Unmounted /mnt/object."
-fi
-
-echo "🔗  Mounting object storage..."
 rclone mount chi_tacc:object-persist-project-14 /mnt/object --allow-other --read-only --daemon
 
 # 6. Ensure faces_dataset exists inside object store
@@ -73,11 +58,8 @@ else
   echo "✅  Docker already installed."
 fi
 
-# 9. Start Jupyter container
-echo "🚀  Starting Jupyter container..."
-docker rm -f jupyter 2>/dev/null || true
-
-docker run -d --rm \
+# 9. Create docker-compose.yml locally
+sudo docker run -d --rm \
   --privileged \
   -p 8888:8888 \
   --shm-size 8G \
@@ -95,4 +77,5 @@ docker run -d --rm \
   --ServerApp.root_dir=/home/jovyan \
   --ServerApp.default_url=/lab
 
-echo "✅  Jupyter container started successfully."
+echo "✅  docker-compose.yml created successfully."
+

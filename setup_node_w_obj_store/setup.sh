@@ -33,12 +33,12 @@ echo "Mounting object storage..."
 sudo mkdir -p /mnt/object
 sudo chown $USER:$USER /mnt/object || true
 
-rclone mount chi_tacc:object-persist-project14 /mnt/object --allow-other --read-only --daemon
+rclone mount chi_tacc:object-persist-project-14 /mnt/object --allow-other --read-only --daemon
 
 # 6. Ensure faces_dataset exists inside object store
 if [ ! -d /mnt/object/faces_dataset ]; then
   echo "Creating faces_dataset in object storage..."
-  rclone mkdir chi_tacc:object-persist-project14/faces_dataset
+  rclone mkdir chi_tacc:object-persist-project-14/faces_dataset
   echo "✅  Created faces_dataset folder."
 else
   echo "✅  faces_dataset already exists."

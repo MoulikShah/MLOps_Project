@@ -33,7 +33,15 @@ echo "Mounting object storage..."
 sudo mkdir -p /mnt/object
 sudo chown $USER:$USER /mnt/object || true
 
-rclone mount chi_tacc:object-persist-project-14 /mnt/object --allow-other --read-only --daemon
+rclone mount chi_tacc:object-persist-project-14 /mnt/object \
+  --allow-other \
+  --read-only \
+  --vfs-cache-mode=full \
+  --dir-cache-time=72h \
+  --poll-interval=15s \
+  --vfs-read-chunk-size=128M \
+  --vfs-read-chunk-size-limit=2G \
+  --daemon
 
 # 6. Ensure faces_dataset exists inside object store
 if [ ! -d /mnt/object/faces_dataset ]; then

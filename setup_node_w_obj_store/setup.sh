@@ -67,22 +67,6 @@ else
 fi
 
 # 9. Create docker-compose.yml locally
-sudo docker run -d --rm \
-  --privileged \
-  -p 8888:8888 \
-  --shm-size 8G \
-  -e FACE_DATA_DIR=/mnt/faces_dataset \
-  -v ~/workspace:/home/jovyan/work/ \
-  --mount type=bind,source=/mnt/object,target=/mnt/faces_dataset,readonly \
-  --name jupyter \
-  quay.io/jupyter/pytorch-notebook:latest \
-  start-notebook.sh \
-  --ServerApp.token='' \
-  --ServerApp.password='' \
-  --ServerApp.allow_origin='*' \
-  --ServerApp.allow_remote_access=True \
-  --ServerApp.ip=0.0.0.0 \
-  --ServerApp.root_dir=/home/jovyan \
-  --ServerApp.default_url=/lab
+#Create docker container here
 
 echo "✅  docker-compose.yml created successfully."

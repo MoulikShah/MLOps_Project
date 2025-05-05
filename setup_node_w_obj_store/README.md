@@ -1,7 +1,7 @@
 -First create a node/instance.  
 -Associate to the floating IP  
 -Open the terminal and ssh to the ip  
-ssh -i ~/.ssh/id_rsa_chameleon cc@129.114.26.204  
+ssh -i ~/.ssh/id_rsa_chameleon cc@floating_ip
   
 #Create the rclone config  
 mkdir -p ~/.config/rclone  
@@ -22,4 +22,3 @@ Run:
 bash <(curl -fsSL https://raw.githubusercontent.com/MoulikShah/MLOps_Project/main/setup_node_w_obj_store/setup.sh)  
   
 Now enter the Jupyter environment with the url with floating IP and run your experiments  
-URL: http://129.114.26.204:8888/lab?

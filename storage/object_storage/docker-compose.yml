@@ -1,0 +1,36 @@
+version: '3'
+
+services:
+  jupyter:
+    image: quay.io/jupyter/pytorch-notebook:latest
+    container_name: jupyter-storage-demo
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./workspace:/home/jovyan/work/
+      - /mnt/object:/mnt/data:ro
+    environment:
+      - DATA_DIR=/mnt/data
+    shm_size: 8G
+    restart: unless-stopped
+
+  model-training:
+    image: pytorch/pytorch:latest
+    container_name: model-training
+    volumes:
+      - ./workspace:/workspace
+      - /mnt/object:/data:ro
+    environment:
+      - DATA_DIR=/data
+    working_dir: /workspace
+    command: >
+      bash -c "
+        echo 'Container ready to train models with data from object storage.' &&
+        echo 'To start training, execute: docker exec -it model-training python train.py' &&
+        tail -f /dev/null
+      "
+    shm_size: 4G
+
+networks:
+  default:
+    driver: bridge 

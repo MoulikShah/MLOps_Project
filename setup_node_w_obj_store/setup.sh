@@ -33,12 +33,20 @@ echo "Mounting object storage..."
 sudo mkdir -p /mnt/object
 sudo chown $USER:$USER /mnt/object || true
 
-rclone mount chi_tacc:object-persist-project14 /mnt/object --allow-other --read-only --daemon
+rclone mount chi_tacc:object-persist-project-14 /mnt/object \
+  --allow-other \
+  --read-only \
+  --vfs-cache-mode=full \
+  --dir-cache-time=72h \
+  --poll-interval=15s \
+  --vfs-read-chunk-size=128M \
+  --vfs-read-chunk-size-limit=2G \
+  --daemon
 
 # 6. Ensure faces_dataset exists inside object store
 if [ ! -d /mnt/object/faces_dataset ]; then
   echo "Creating faces_dataset in object storage..."
-  rclone mkdir chi_tacc:object-persist-project14/faces_dataset
+  rclone mkdir chi_tacc:object-persist-project-14/faces_dataset
   echo "✅  Created faces_dataset folder."
 else
   echo "✅  faces_dataset already exists."
@@ -59,22 +67,6 @@ else
 fi
 
 # 9. Create docker-compose.yml locally
-sudo docker run -d --rm \
-  --privileged \
-  -p 8888:8888 \
-  --shm-size 8G \
-  -e FACE_DATA_DIR=/mnt/faces_dataset \
-  -v ~/workspace:/home/jovyan/work/ \
-  --mount type=bind,source=/mnt/object,target=/mnt/faces_dataset,readonly \
-  --name jupyter \
-  quay.io/jupyter/pytorch-notebook:latest \
-  start-notebook.sh \
-  --ServerApp.token='' \
-  --ServerApp.password='' \
-  --ServerApp.allow_origin='*' \
-  --ServerApp.allow_remote_access=True \
-  --ServerApp.ip=0.0.0.0 \
-  --ServerApp.root_dir=/home/jovyan \
-  --ServerApp.default_url=/lab
+#Create docker container here
 
 echo "✅  docker-compose.yml created successfully."

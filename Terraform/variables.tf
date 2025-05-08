@@ -1,5 +1,5 @@
 variable "suffix" {
-  description = "Net ID"
+  description = "Suffix for resource names (use net ID)"
   type        = string
   nullable = false
 }
@@ -7,12 +7,14 @@ variable "suffix" {
 variable "key" {
   description = "Name of key pair"
   type        = string
-  default     = "default"
+  default     = "id_rsa_chameleon"
 }
 
 variable "nodes" {
   type = map(string)
   default = {
     "node1" = "192.168.1.11"
+    "node2" = "192.168.1.12"
+    "node3" = "192.168.1.13"
   }
 }

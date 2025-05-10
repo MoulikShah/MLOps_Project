@@ -1,10 +1,13 @@
 all:
   vars:
-    # Ensure Ansible uses Python 3 on Ubuntu CC images
     ansible_python_interpreter: /usr/bin/python3
-
   hosts:
     node1:
-      # Replace with the actual Terraform output for node1
       ansible_host: 192.168.1.11
+      ansible_user: cc
+    node2:
+      ansible_host: 192.168.1.12
+      ansible_user: cc
+    node3:
+      ansible_host: 192.168.1.13
       ansible_user: cc

@@ -1,0 +1,39 @@
+# Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: project-app
+  namespace: project-canary
+
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: project-app
+  template:
+    metadata:
+      labels:
+        app: project-app
+    spec:
+      containers:
+        - name: project-app
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          ports:
+            - containerPort: 8000
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+---
+# Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: project-app
+  namespace: project-canary
+spec:
+  selector:
+    app: project-app
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 8000
+  externalIPs:
+    - {{ .Values.service.externalIP }}

@@ -1,9 +1,9 @@
-data "openstack_networking_network_v2" "test1" {
-  name = "test1"
+data "openstack_networking_network_v2" "sharednet2" {
+  name = "sharednet2"
 }
 
-data "openstack_networking_subnet_v2" "test1_subnet" {
-  name = "test1_subnet"
+data "openstack_networking_subnet_v2" "sharednet2_subnet" {
+  name = "sharednet2-subnet"
 }
 
 data "openstack_networking_secgroup_v2" "allow_ssh" {
@@ -33,3 +33,4 @@ data "openstack_networking_secgroup_v2" "allow_http_80" {
 data "openstack_networking_secgroup_v2" "allow_9090" {
   name = "allow-9090"
 }
+

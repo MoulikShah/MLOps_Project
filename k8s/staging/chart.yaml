@@ -1,0 +1,4 @@
+apiVersion: v2
+name: project-staging
+version: 1.0.0
+description: Project Staging Deployment

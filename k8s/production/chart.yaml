@@ -1,0 +1,4 @@
+apiVersion: v2
+name: project-production
+version: 1.0.0
+description: Project Production Deployment

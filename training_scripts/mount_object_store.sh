@@ -3,7 +3,7 @@
 # Save this file as mount_object_store.sh
 
 # Set variables
-CONTAINER_NAME="object-persist-project-14"
+CONTAINER_NAME="object-persist-project14"
 MOUNT_POINT="/mnt/object"
 RCLONE_CONFIG_NAME="chi_tacc"
 

@@ -27,7 +27,16 @@ fi
 echo "Copying config from $CONFIG_SOURCE to $CONFIG_TARGET..."
 cp "$CONFIG_SOURCE" "$CONFIG_TARGET"
 
-# Step 5: Test rclone connection
+# Step 5: Enable allow_other in fuse.conf
+FUSE_CONF="/etc/fuse.conf"
+if grep -q "^#user_allow_other" "$FUSE_CONF"; then
+    echo "Enabling 'user_allow_other' in $FUSE_CONF..."
+    sudo sed -i '/^#user_allow_other/s/^#//' "$FUSE_CONF"
+else
+    echo "'user_allow_other' already enabled or not found commented."
+fi
+
+# Step 6: Test rclone connection
 echo "Testing rclone connection to chi_tacc:"
 rclone lsd chi_tacc:
 

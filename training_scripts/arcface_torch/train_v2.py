@@ -78,7 +78,7 @@ def main(args):
         finally:
             mlflow.set_tracking_uri("http://129.114.27.48:8000")
             mlflow_experiment_name = datetime.now().strftime("%y%m%d_%H%M")
-            mlflow_experiment_name = mlflow_experiment_name if cfg.suffix_run_name is None else mlflow_experiment_name + f"_{cfg.suffix_run_name}"
+            mlflow_experiment_name = mlflow_experiment_name if cfg.experiment_name is None else mlflow_experiment_name + f"_{cfg.experiment_name}"
             mlflow.set_experiment(mlflow_experiment_name)
             mlflow.start_run(log_system_metrics=True)
             mlflow.log_params(cfg)

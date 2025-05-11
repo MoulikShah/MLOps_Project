@@ -19,12 +19,12 @@ config.lr = 0.02
 config.verbose = 2000
 config.dali = False
 
-config.rec = "/mnt/object/dataset/datasets/train"
+config.rec = "/mnt/object/datasets/train"
 config.num_classes = 10000
 config.num_image = 80000
-config.num_epoch = 10
+config.num_epoch = 1
 config.warmup_epoch = 0
 config.val_targets = ['lfw', 'cfp_fp', "agedb_30"]
-config.experiment_name = "training_10k"
+config.experiment_name = "temp"
 config.class_json = "/home/cc/MLOps_Project/training_scripts/arcface_torch/sampled_classes.json"
 config.num_workers = 12

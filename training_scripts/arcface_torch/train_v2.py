@@ -61,6 +61,7 @@ def create_symlink_dataset(full_data_root, sampled_json_path, output_symlink_roo
     return output_symlink_root
 
 def main(args):
+    assert torch.cuda.is_available()
     cfg = get_config(args.config)
     setup_seed(seed=cfg.seed, cuda_deterministic=False)
     torch.cuda.set_device(local_rank)

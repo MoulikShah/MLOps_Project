@@ -25,6 +25,6 @@ config.num_image = 80000
 config.num_epoch = 1
 config.warmup_epoch = 0
 config.val_targets = ['lfw', 'cfp_fp', "agedb_30"]
-config.experiment_name = "temp"
+config.experiment_name = "testing_amd"
 config.class_json = "/home/cc/MLOps_Project/training_scripts/arcface_torch/sampled_classes.json"
 config.num_workers = 12

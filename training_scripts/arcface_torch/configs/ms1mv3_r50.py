@@ -19,9 +19,12 @@ config.lr = 0.1
 config.verbose = 2000
 config.dali = False
 
-config.rec = "/train_tmp/ms1m-retinaface-t1"
-config.num_classes = 93431
-config.num_image = 5179510
-config.num_epoch = 20
+config.rec = "/mnt/object/datasets/train"
+config.num_classes = 10000
+config.num_image = 80000
+config.num_epoch = 1
 config.warmup_epoch = 0
 config.val_targets = ['lfw', 'cfp_fp', "agedb_30"]
+config.experiment_name = "multi_gpu_test"
+config.class_json = "/home/cc/MLOps_Project/training_scripts/arcface_torch/sampled_classes.json"
+config.num_workers = 12

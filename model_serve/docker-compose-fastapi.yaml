@@ -1,0 +1,26 @@
+name: fastapi_test
+services:
+  fastapi_server:
+    build:
+      context: /home/cc/serve-system-chi/fastapi_pt
+      dockerfile: Dockerfile
+    container_name: fastapi_server
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    ports:
+      - "8000:8000" # for HTTP requests
+
+  jupyter:
+    image: quay.io/jupyter/minimal-notebook:latest
+    container_name: jupyter
+    ports:
+      - "8888:8888"
+    volumes:
+      - /home/cc/serve-system-chi/workspace:/home/jovyan/work # mount workspace
+    command: >
+      bash -c "python3 -m pip install numpy && start-notebook.sh"

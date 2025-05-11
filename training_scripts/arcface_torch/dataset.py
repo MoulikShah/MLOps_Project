@@ -14,6 +14,21 @@ from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from utils.utils_distributed_sampler import DistributedSampler
 from utils.utils_distributed_sampler import get_dist_info, worker_init_fn
+from torchvision.datasets import ImageFolder
+from torchvision.datasets.folder import default_loader
+import json
+
+
+class FilteredImageFolder(ImageFolder):
+    def __init__(self, root, sampled_class_set, transform=None):
+        super().__init__(root, transform=transform)
+        # Filter samples and class_to_idx
+        valid_classes = set([cls for cls in self.class_to_idx if cls in sampled_class_set])
+        self.samples = [(path, label) for path, label in self.samples if self.classes[label] in valid_classes]
+        # Update targets and classes
+        self.targets = [label for _, label in self.samples]
+        self.classes = sorted(valid_classes)
+        self.class_to_idx = {cls_name: i for i, cls_name in enumerate(self.classes)}
 
 
 def get_dataloader(
@@ -24,7 +39,14 @@ def get_dataloader(
     dali_aug = False,
     seed = 2048,
     num_workers = 2,
+    sampled_classes_json: str = None
     ) -> Iterable:
+
+    sampled_classes_set = None
+    if sampled_classes_json is not None:
+        with open(sampled_classes_json, 'r') as f:
+            sampled_classes = json.load(f)['sampled_classes']
+            sampled_classes_set = set(sampled_classes)
 
     rec = os.path.join(root_dir, 'train.rec')
     idx = os.path.join(root_dir, 'train.idx')
@@ -46,7 +68,7 @@ def get_dataloader(
              transforms.ToTensor(),
              transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
              ])
-        train_set = ImageFolder(root_dir, transform)
+        train_set = FilteredImageFolder(root_dir, sampled_classes_set, transform=transform)
 
     # DALI
     if dali:

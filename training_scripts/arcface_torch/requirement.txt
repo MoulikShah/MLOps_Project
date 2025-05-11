@@ -2,5 +2,10 @@ tensorboard
 easydict
 mxnet
 onnx
-sklearn
+scikit-learn
 opencv-python
+torch
+torchvision
+mlflow
+psutil
+pynvml

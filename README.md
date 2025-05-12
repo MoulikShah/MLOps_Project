@@ -139,7 +139,7 @@ Our face recognition system utilizes *Chameleon Cloud's persistent storage* to m
 
 #### Object Storage (CHI@TACC Swift)
 
-- *Size:* 20GB allocated for immutable datasets  
+- *Size:* 6.7 GB of imm,utable training, evaluation and productiono data  
 - *Container Name:* object-persist-project-14  
 - *Access Method:* Mounted as *read-only* via rclone  
 - *Contents:*

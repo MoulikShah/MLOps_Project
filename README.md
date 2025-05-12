@@ -115,7 +115,7 @@ Project Root
 
 ### 0. Setup MLFLOW server and MINIO storage on KVM@TACC
 
-Bring up the container docker-compose-block.yaml to setup persistent storage on KVM@TACC (which was created as part of the continuous pipeline with permanent float-ip on node1).
+Bring up the container `docker-compose-block.yaml` to setup persistent storage on KVM@TACC (which was created as part of the continuous pipeline with permanent float-ip on node1).
 
 ### 1. Training Node Setup and start training (with bash scripts)
 
@@ -172,7 +172,7 @@ Just bring up this training container to start training. (Note that you still ne
 The `Dockerfile` used for building the `face-trainer` container consolidates and automates the setup tasks originally performed by the shell scripts (`setup_docker.sh`, `setup_nvidia.sh`, `install_requirements.sh`).
 
 - **Base Image and System Packages**  
-  The Dockerfile starts from a base CUDA image and installs essential system packages including Python 3.8, `build-essential`, `git`, `curl`, and others needed for compiling and running ML libraries.
+  The Dockerfile starts from a base `CUDA` image and installs essential system packages including Python 3.8, `build-essential`, `git`, `curl`, and others needed for compiling and running ML libraries.
 
 - **Python Environment Setup**  
   Python 3.8 is set up using `deadsnakes/ppa`, and a virtual environment is created inside the container at `/app/mlops_env`. This replaces the functionality of `install_requirements.sh`.

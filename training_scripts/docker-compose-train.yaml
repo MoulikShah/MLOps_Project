@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  face-trainer:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: face-trainer
+    shm_size: 96G
+    volumes:
+      - /mnt/object:/app/datasets
+      - face_runs:/app/runs
+      - face_weights:/app/weights
+      - ./training_scripts:/app/training_scripts
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+
+volumes:
+  face_runs:
+    driver: local
+  face_weights:
+    driver: local

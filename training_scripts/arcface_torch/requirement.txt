@@ -1,0 +1,11 @@
+tensorboard
+easydict
+mxnet
+onnx
+scikit-learn
+opencv-python
+torch
+torchvision
+mlflow
+psutil
+pynvml

@@ -48,8 +48,8 @@ Common dataset link: https://github.com/deepinsight/insightface/tree/master/reco
 | `m1-medium` | 2 for entire project                           | 1 in model serving and 1 for model evaluation and load testing           |
 | `gpu_v100`     | 4 gpus/ 4 slots of 5 hours                        |       Required for training the ResNet-50 for the large database        |
 | Floating IPs    | 2 running throghout the project                |    1 for model serving api, 1 for monitoring while training, testing and serving  |
-| Persistent Volume  - 'block storage'   |                1 volume - 10GB                                  |       Needed to store model checkpoints, logs, retrained models, and OpenVINO outputs        |
-| Object Storage 'CHI@TACC Swift' |   1 volume - 50GB     |  Storing the static dataset
+| Persistent Volume  - 'block storage'   |                1 volume - 18GB                                  |       Needed to store model checkpoints, logs, retrained models, and OpenVINO outputs        |
+| Object Storage 'CHI@TACC Swift' |   1 volume - 6.7GB     |  Storing the static dataset
 
 ## Implementation
 ---

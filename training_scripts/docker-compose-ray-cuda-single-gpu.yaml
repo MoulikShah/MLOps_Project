@@ -1,0 +1,39 @@
+version: '3.8'
+name: ray_cluster
+
+services:
+  ray-head:
+    image: rayproject/ray:2.42.1
+    container_name: ray-head
+    command: >
+      /bin/bash -c "
+      mkdir -p /tmp/ray && 
+      ray start --head --port=6379 --dashboard-host=0.0.0.0 --block"
+    ports:
+      - "6379:6379"      # Ray cluster port
+      - "8265:8265"      # Ray dashboard
+    shm_size: '12g'
+    volumes:
+      - /mnt/object:/mnt/object:ro
+    environment:
+      - RAY_DISABLE_DOCKER_CPU_WARNING=1
+    user: root
+
+  ray-worker:
+    image: rayproject/ray:2.42.1-gpu
+    container_name: ray-worker
+    command: ["ray", "start", "--address=ray-head:6379", "--num-cpus=16", "--num-gpus=1", "--block"]
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: "nvidia"
+              capabilities: ["gpu"]
+              device_ids: ["0"]
+    shm_size: '12g'
+    volumes:
+      - /mnt/object:/mnt/object:ro
+    depends_on:
+      - ray-head
+    environment:
+      - RAY_DISABLE_DOCKER_CPU_WARNING=1

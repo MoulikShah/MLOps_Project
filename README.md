@@ -29,13 +29,17 @@ We have the following tests for offline monitoring:
 4) Template based tests:
    
 ### Load test in staging: 
-After our model passes all the offline tests,, it will be moved to the staging area, here we will pas in a large subset for load testing and display the results:
-  Throughput
+After our model passes all the offline tests,, it will be moved to the staging area, here we will pas in a large subset for load testing and display the results: 
+  Throughput 
   Latency
   
 ### Online evaluation in canary:
+Here we will conduct an online evaluation, which is when we use data similar to real users, (ages < 35, ethnicity split: 1/3rd Indian, 1/3rd Asian, 1/3rd white and black). 
+Our data will be sent to our base model as well as our newly trained model, and we will compare our results, new model will only be moved forward if it fairs better than the base model. 
 
 ### Close the loop:
+Here we assume to get feedback in 2 ways. Positive feedback will be automatically sent back as a v small subset of correctly predicted cases.
+For negative feedback there can be 1 of two cases - If the person does not get correctly recognized and the professor or staff has to manually verify, If a person manages to cheat the model and happens to get caught. we will specifically label data of similar looking people usnig label studio. rest of the negative feedback data wil be automated since we have ground truth labels.
 
 ### Define a business-specific evaluation:
 

@@ -17,9 +17,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the application code
 COPY . .
 
-# Ensure model file is available inside the container
-COPY model.pth /app/
-
 # Expose FastAPI port
 EXPOSE 8000
 

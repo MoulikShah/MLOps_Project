@@ -228,20 +228,17 @@ Deployed on a single-gpu setup.
 ### -Serving from an API endpoint:
 We have wrapped our model in a fastapi backend application which runs on a seperate node_mode_serve_project-14 so that its performance is uninterrupted by trainnig and testing. It has a simple '/compare' endpoint which taks 2 image files as input, creates their embeddings using the model and then checks if they are the ame using a threshold for cosine similarity for the embeddings. 
 You can find the application code and the docker-compose file to create a container and run the app and the other serving infrastructure at [model_serve](https://github.com/MoulikShah/MLOps_Project/tree/main/model_serve)
+Model may be live at [this](http://129.114.25.133:8000/docs#/default/compare_faces_compare_post) site
 
 ### -Identify requirements:
 Since we are running an offline service that will only handle concurrent users at entrances to exam halls, the throughput of the system is not very important. 
 However we would like a short latency so that our system does not cause delays as each student is entering the classroom 1 by 1. These are the requirements
-Throughput: > 10 req/sec
-Latency: < 500ms
+Throughput: > 1 req/sec
+Latency: < 900ms
 
 ### -Model optimizations to satisfy requirements:
-Since we want to explore and use different optimization techniques and execution providers, we will be converting our model to Onnx format.
-
-**Graph optimizations:** We will be using graph optimizations like fusing - combining common subsequent operations and constant folding - precomputing operations where inputs are constant.  
-Since these optimizations don't reduce performance, we will implement them.
-
-**Quantizations:** Since we require high accuracy and are trying to prevent false negatives we will experiment with conservative quantization but will most likely not use any quantization techniques.
+Since we want to explore and use different optimization techniques and execution providers, we have attempted to run the model, batched and with single sample with a pytorch and onnx runtime. 
+Sine our omdel is very lightweight, model optimizations are not needed. Model testing was done [here](https://github.com/MoulikShah/MLOps_Project/tree/main/model_serve/model_opt.ipynb). 
 
 ### -System optimizations to satisfy requirements:
 **Backend:** We will use a simple fastapi server as the backend as it is simple, light and matches our throughput/latency requirements  

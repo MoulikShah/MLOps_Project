@@ -18,11 +18,18 @@ app = FastAPI(title="Face Similarity API",
               version="1.0.0")
 
 # Global model variable
-# Load the Food11 model
 MODEL_PATH = "model.pth"
-model = iresnet100(pretrained=False)
-model.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
+
+# Try loading a state_dict first, otherwise assume the file *is* the model
+checkpoint = torch.load(MODEL_PATH, map_location="cpu")
+if isinstance(checkpoint, dict):
+    model = iresnet100(pretrained=False)
+    model.load_state_dict(checkpoint)
+else:
+    model = checkpoint
+
 model.eval()
+
 
 def preprocess_image(image_bytes):
     """Preprocess the image from bytes"""

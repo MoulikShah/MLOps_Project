@@ -45,7 +45,7 @@ Common dataset link: https://github.com/deepinsight/insightface/tree/master/reco
 
 | Requirement     | How many/when                                     | Justification |
 |-----------------|---------------------------------------------------|---------------|
-| `compute_skylake` | 2 for entire project                           | 1 in model serving and 1 for model evaluation and load testing           |
+| `m1-medium` | 2 for entire project                           | 1 in model serving and 1 for model evaluation and load testing           |
 | `gpu_v100`     | 4 gpus/ 4 slots of 5 hours                        |       Required for training the ResNet-50 for the large database        |
 | Floating IPs    | 2 running throghout the project                |    1 for model serving api, 1 for monitoring while training, testing and serving  |
 | Persistent Volume  - 'block storage'   |                1 volume - 10GB                                  |       Needed to store model checkpoints, logs, retrained models, and OpenVINO outputs        |
@@ -54,7 +54,7 @@ Common dataset link: https://github.com/deepinsight/insightface/tree/master/reco
 ## Detailed design plan
 ---
 
-### Model training and infrastructure platforms
+## Unit 3 and 4: Model training and infrastructure
 
 - We will employ mini-batch Stochastic Gradient Descent (SGD) for training, with the batch size determined by GPU memory. Gradient accumulation will be explored to simulate larger batch sizes if memory becomes a constraint.
 - To optimize memory usage, we will consider mixed-precision training (FP16 gradients with an FP32 optimizer) and monitor the memory footprint of the chosen optimizer.
@@ -70,24 +70,19 @@ Common dataset link: https://github.com/deepinsight/insightface/tree/master/reco
 
 ---
 
-### Model serving and monitoring platforms
+## Unit 6: Model serving:
 
-#### Serving from an API endpoint:
-During serving, a FastAPI endpoint will exist through which we will get a request from the user (input) and return the result, i.e. verified or not (output)
+### Serving from an API endpoint:
+We have wrapped our model in a fastapi backend application which runs on a seperate node_mode_serve_project-14 so that its performance is uninterrupted by trainnig and testing. It has a simple '/compare' endpoint which taks 2 image files as input, creates their embeddings using the model and then checks if they are the ame using a threshold for cosine similarity for the embeddings. 
+You can find the application code and the docker-compose file to create a container and run the app and the other serving infrastructure at [model_serve](https://github.com/MoulikShah/MLOps_Project/tree/main/model_serve)
 
-#### Model Requirements:
-We will have 2 instances of our model, one with high throughput and concurrency for online exams multiple students will check in at the same time for an exam, and one with concurrency 1 for offline exams as students will check in one at a time at one exam hall  
-Size: 100MB  
-**Throughput:**  
-In person exams - 100-200 req/second (low concurrency)  
-Online exams - 800 req/second (high concurrency and dynamic batching)  
+### Identify requirements:
+Since we are running an offline service that will only handle concurrent users at entrances to exam halls, the throughput of the system is not very important. 
+However we would like a short latency so that our system does not cause delays as each student is entering the classroom 1 by 1. These are the requirements
+Throughput: > 10 req/sec
+Latency: < 500ms
 
-**Single sample latency:** predicting a latency of 10-20ms  
-**Concurrency requirement:**  
-- Concurrency of 1 for offline exams  
-- Concurrency of 8 for online exams  
-
-#### Model optimizations to satisfy requirements:
+### Model optimizations to satisfy requirements:
 Since we want to explore and use different optimization techniques and execution providers, we will be converting our model to Onnx format.
 
 **Graph optimizations:** We will be using graph optimizations like fusing - combining common subsequent operations and constant folding - precomputing operations where inputs are constant.  
@@ -95,53 +90,41 @@ Since these optimizations don't reduce performance, we will implement them.
 
 **Quantizations:** Since we require high accuracy and are trying to prevent false negatives we will experiment with conservative quantization but will most likely not use any quantization techniques.
 
-#### System optimizations to satisfy requirements:
-**Backend:** We will use the triton inference server as the backend as it is optimized for high throughput, it has inbuilt support for concurrency and monitoring with prometheus and support for different execution providers.  
-**OpenVino:** We will use the OpenVino EP which is optimized for intel CPUs for high throughput on CPU hardware.  
+### System optimizations to satisfy requirements:
+**Backend:** We will use a simple fastapi server as the backend as it is simple, light and matches our throughput/latency requirements  
 
 ---
 
-#### Multiple options for serving:
-We will have 2 options for serving:  
-- 1 model will be served with a high concurrency with dynamic batching for evaluation in online exams where multiple students at the same exam will be scanning at the same time.  
-- 1 model will be served with a concurrency of 1 since it will be needed for a throughput of only 150-250 req/sec
+## Unit 7: Evaluation and monitoring
 
----
-
-#### Offline evaluation of model:
-We will have a suit of offline tests that will run immediately after the model training and unit testing. These tests will be triggered automatically via an internal api between the training and testing microservices.  
-**Standard and domain specific tests:** This will be from the VGGFace2 dataset subset with appropriate weightage of people types similar to that in production (e.g. ethnic distributions specific to NYU)  
-**Population and slices:** We will create mini sets of different types of data, like different ethnicities, skin colours, facial hair, lighting conditions  
-**Known Failure cases:** We will consider bad fail cases to test against like blurry photos, bad lighting, similar faces of different people.
+### Offline evaluation of model: 
+We have the following tests for offline monitoring: 
+1) Standard tests: This consists of tests with postiive pairs (2 images of same person) and negative pairs (1 anchor image of the person with a randomly selected image).
+   Domain specific tests: pThese results are more significant as they show ius how the odel will behave with real world inputs. Here we used a pretrained model, deepface to obtain age gender and ethnicity for each identity. Positive pairs for people under the eage of 30 were taken.
+   Negative paird were chosen for identites with the same ethnicity and gender, since it is morelikely for fraud cases.
+2) Population slices: We have created subsets for the following population slices: Indians and middle eastern, Asian, White and Black. We ave also created subsets based on gender.
+3) Test on known failure modes: Here we have handpciked samples from the domain specific set (same ethicity and gender) that look particularly similar, we have also picked some cases with bad lighting and blur, cases we believe the model may struggle.
+4) Template based tests:
 
 The results of this testing and evaluation will be automatically saved in MLFlow which will be accessed from a through a floating IP. If a certain threshold of each test type is passed, the model will be automatically saved to the model registry via MLFlow.
 
----
+### Load test in staging: 
+After our model passes all the offline tests,, it will be moved to the staging area, here we will pas in a large subset for load testing and display the results: 
+  Throughput 
+  Latency
 
-#### Load test in staging:
-Once the model accuracy in different conditions has been validated, we will now stress test our model to see if it matches our throughput and latency requirements in the same environment as our production/serving environment, i.e. Triton server with OpenVino on the compute_skylake node.
+### Online evaluation in canary:
+Here we will conduct an online evaluation, which is when we use data similar to real users, (ages < 35, ethnicity split: 1/3rd Indian, 1/3rd Asian, 1/3rd white and black). 
+Our data will be sent to our base model as well as our newly trained model, and we will compare our results, new model will only be moved forward if it fairs better than the base model.
 
-**Load testing will be done in 2 ways:**  
-- Testing for the single concurrency model which is served for offline exams, required throughput - > 150 req/sec and latency < 100ms  
-- Testing for multiple concurrency of 8 with dynamic batching for online exams, required throughput > 750 req/sec and latency < 500ms  
-(Since people will not be lining up in online exams behind the camera a higher latency per user is not a huge deal)
+### Close the loop:
+Here we assume to get feedback in 2 ways. Positive feedback will be automatically sent back as a v small subset of correctly predicted cases.
+For negative feedback there can be 1 of two cases - If the person does not get correctly recognized and the professor or staff has to manually verify, If a person manages to cheat the model and happens to get caught. we will specifically label data of similar looking people usnig label studio. rest of the negative feedback data wil be automated since we have ground truth labels.
 
----
-
-#### Online evaluation in canary
-During the canary rollout, the new model is deployed to a limited number of exam entry gates to assess its performance in real-world conditions before full-scale deployment. This phase simulates actual student behavior, including scenarios such as poor lighting, delays in entry, and multiple verification attempts caused by initial misdetections. The purpose is to observe how the model performs under imperfect and variable conditions, ensuring robustness and reliability before promotion to production.
-
----
-
-#### Close the loop:
-There will be feedback from the user via a separate API, which will automatically register incorrect evaluations (False Negatives) when a proctor has to verify a correct identity which is not verified by the model or when the user needs multiple tries to pass the verification.  
-In addition to this, when new users are added to the database, cameras will pick up facial data during class for the scheduled retraining. This data will finish the feedback loop for model retraining, which will happen automatically when the model performance in monitoring is deteriorated to a certain extent or a large number of new users are added.
-
----
-
-#### Business specific metrics:
+### Business specific metrics:
 - Improvement in security and reduced fraud/cheating:  
-There should be a reduction in imposter’s caught by proctors in the exam hall or in online exams.
+If we happen to record the number of instances that a person has been caught cheating per year or semester, we can check these results pre and post our ML implementation. 
+if there is a decrease, we know that thee has been an increase in academic integrity.
 
 - Efficiency:  
 In place of taking manual attendance we should see a much faster system with automated attendance. If we record two groups, one with manual attendance and one with the ML system, we should see a decrease in total time for conducting the examination.

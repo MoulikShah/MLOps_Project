@@ -19,7 +19,7 @@ from iresnet import iresnet100
 @pytest.fixture(scope="session")
 def model():
     model = iresnet100(pretrained=False)
-    model.load_state_dict(torch.load('../../../ms1mv3_arcface_r100_fp16/backbone.pth', map_location='cpu'))
+    model.load_state_dict(torch.load('model.pth', map_location='cpu'))
     model.eval()
     return model
 
@@ -45,7 +45,7 @@ def get_embedding(img_path, model):
 
 @pytest.fixture(scope="session")
 def data():
-    with open('C:/Users/megh2/vscode/ML_Ops Project/ML_OPS_GIT/MLOps_Project/eval_testing/tests/results.json', 'r') as f:
+    with open('MLOps_Project/data_ref/eval_1_analysis.json', 'r') as f:
         data = json.load(f)
     return data
 
@@ -53,8 +53,8 @@ def data():
 def pairs(data):
 
     target_ethnicities = ['indian', 'white', 'black', 'middle eastern', 'asian']
-    pairs_per_ethnicity = 50
-    identities_root = 'C:/Users/megh2/vscode/ML_Ops Project/identities_dataset'
+    pairs_per_ethnicity = 150
+    identities_root = 'mnt/object/dataset/datasets/post_training_opt'
 
     # Initialize separate lists for different categories
     pairs = []
@@ -70,7 +70,7 @@ def pairs(data):
     eligible = {eth: [] for eth in target_ethnicities}
     for identity, info in data.items():
         eth = info['ethnicity'].lower()
-        if eth in eligible and info['under_30']:
+        if eth in eligible:
             if info["gender"]["Man"] > 0.8:
                 info["gender"] = "Male"
             elif info["gender"]["Woman"] > 0.8:

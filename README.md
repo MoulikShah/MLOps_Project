@@ -56,6 +56,28 @@ Common dataset link: https://github.com/deepinsight/insightface/tree/master/reco
 
 # Unit 4 and 5: Model Training and Infrastructure
 
+Directory structure (for training part only)
+.
+├── docker-compose-train.yaml # Compose file to build & run the training container
+├── Dockerfile # Dockerfile for setting up the training environment
+├── training_scripts/ # Folder containing training setup scripts
+│ ├── install_requirements.sh # Installs Python packages for CUDA setup
+│ ├── install_requirement_amd.sh # Installs Python packages for AMD setup
+│ ├── setup_docker.sh # Initializes base environment setup
+│ ├── setup_nvidia.sh # Sets up NVIDIA drivers/libraries
+│ ├── setup_amdgpu.sh # Sets up AMD GPU environment
+│ ├── setup_rclone.sh # Configures rclone for object storage access
+│ ├── mount_object_store.sh # Mounts object store to a local path
+│ ├── mount_block_volume.sh # Mounts block volume as persistent disk
+│ └── block_storage_mount.py # Python script to automate block volume mount
+└──── arcface_torch/ # Main training code directory (based on ArcFace)
+      ├── train_v2.py # Main distributed training script
+      ├── run.sh # Script to launch training
+      ├── requirement.txt # Pip requirements for CUDA setup
+      ├── requirement_amd.txt # Pip requirements for AMD ROCm setup
+      ├── promote_model.py # Script to push final model to registry/storage
+      └── (other training scripts and utility modules)
+
 ## UNIT 4: Model Training
 
 ### Training Flow Overview

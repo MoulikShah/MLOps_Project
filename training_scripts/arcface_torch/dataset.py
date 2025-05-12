@@ -18,17 +18,25 @@ from torchvision.datasets import ImageFolder
 from torchvision.datasets.folder import default_loader
 import json
 
-
 class FilteredImageFolder(ImageFolder):
-    def __init__(self, root, sampled_class_set, transform=None):
+    def __init__(self, root, sampled_class_set, transform=None, class_to_idx_from_json=None):
         super().__init__(root, transform=transform)
-        # Filter samples and class_to_idx
-        valid_classes = set([cls for cls in self.class_to_idx if cls in sampled_class_set])
-        self.samples = [(path, label) for path, label in self.samples if self.classes[label] in valid_classes]
-        # Update targets and classes
+        # Override class_to_idx using deterministic mapping from JSON
+        if class_to_idx_from_json:
+            self.class_to_idx = class_to_idx_from_json
+            self.classes = sorted(class_to_idx_from_json.keys())
+        else:
+            valid_classes = set([cls for cls in self.class_to_idx if cls in sampled_class_set])
+            self.classes = sorted(valid_classes)
+            self.class_to_idx = {cls_name: i for i, cls_name in enumerate(self.classes)}
+
+        # Filter samples using new class_to_idx
+        self.samples = [
+            (path, self.class_to_idx[os.path.basename(os.path.dirname(path))])
+            for path, _ in self.samples
+            if os.path.basename(os.path.dirname(path)) in self.class_to_idx
+        ]
         self.targets = [label for _, label in self.samples]
-        self.classes = sorted(valid_classes)
-        self.class_to_idx = {cls_name: i for i, cls_name in enumerate(self.classes)}
 
 
 def get_dataloader(
@@ -47,6 +55,14 @@ def get_dataloader(
         with open(sampled_classes_json, 'r') as f:
             sampled_classes = json.load(f)['sampled_classes']
             sampled_classes_set = set(sampled_classes)
+    
+    # Load JSON-based deterministic class mapping
+    class_to_idx = None
+    if sampled_classes_json:
+        with open(sampled_classes_json) as f:
+            sampled_classes = json.load(f)["sampled_classes"]
+            class_to_idx = {cls_name: idx for idx, cls_name in enumerate(sorted(sampled_classes))}
+
 
     rec = os.path.join(root_dir, 'train.rec')
     idx = os.path.join(root_dir, 'train.idx')
@@ -68,7 +84,11 @@ def get_dataloader(
              transforms.ToTensor(),
              transforms.Normalize(mean=[0.5, 0.5, 0.5], std=[0.5, 0.5, 0.5]),
              ])
-        train_set = FilteredImageFolder(root_dir, sampled_classes_set, transform=transform)
+        if sampled_classes_set is not None:
+            train_set = FilteredImageFolder(root_dir, sampled_classes_set, transform=transform, class_to_idx_from_json=class_to_idx)
+        else:
+            train_set = ImageFolder(root_dir, transform=transform)
+
 
     # DALI
     if dali:

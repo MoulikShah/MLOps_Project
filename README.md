@@ -20,9 +20,19 @@ Latency: < 500ms
 ## Unit 7: Evaluation and monitoring
 
 ### Offline evaluation of model: 
-
+We have the following tests for offline monitoring: 
+1) Standard tests: This consists of tests with postiive pairs (2 images of same person) and negative pairs (1 anchor image of the person with a randomly selected image).
+   Domain specific tests: pThese results are more significant as they show ius how the odel will behave with real world inputs. Here we used a pretrained model, deepface to obtain age gender and ethnicity for each identity. Positive pairs for people under the eage of 30 were taken.
+   Negative paird were chosen for identites with the same ethnicity and gender, since it is morelikely for fraud cases.
+2) Population slices: We have created subsets for the following population slices: Indians and middle eastern, Asian, White and Black. We ave also created subsets based on gender.
+3) Test on known failure modes: Here we have handpciked samples from the domain specific set (same ethicity and gender) that look particularly similar, we have also picked some cases with bad lighting and blur, cases we believe the model may struggle.
+4) Template based tests:
+   
 ### Load test in staging: 
-
+After our model passes all the offline tests,, it will be moved to the staging area, here we will pas in a large subset for load testing and display the results:
+  Throughput
+  Latency
+  
 ### Online evaluation in canary:
 
 ### Close the loop:

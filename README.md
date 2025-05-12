@@ -109,7 +109,7 @@ Project Root
 - Batch_size variation experiments, monitored the GPU_Utilization through system metric logging in MLFlow. Found optimal batch_size giving maximum gpu_utilization.
 - Mixed Precision training using PyTorch's Automated Mixed Precision method, `torch.cuda.amp.grad_scaler.GradScaler`.
 - Gradient accumulation by updating weights only after `gradient_acc` number of steps.
-- Parallel programming (ddp) using `torch.nn.parallel.DistributedDataParallel`, successfully tested on AMD GPU.
+- Parallel programming (ddp) using `torch.nn.parallel.DistributedDataParallel`, successfully tested on AMD GPU. (But was not able to log GPU metrics specifically for those, some issue on AMD GPU).
 
 ## UNIT 5: Training Infrastructure and Pipeline
 

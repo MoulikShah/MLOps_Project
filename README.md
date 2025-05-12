@@ -1,6 +1,37 @@
 # MLOps Project
 
 
+## Unit 6: Model serving:
+
+### Serving from an API endpoint:
+We have wrapped our model in a fastapi backend application which runs on a seperate node_mode_serve_project-14 so that its performance is uninterrupted by trainnig and testing. It has a simple '/compare' endpoint which taks 2 image files as input, creates their embeddings using the model and then checks if they are the ame using a threshold for cosine similarity for the embeddings. 
+You can find the application code and the docker-compose file to create a container and run the app and the other serving infrastructure at [model_serve](https://github.com/MoulikShah/MLOps_Project/tree/main/model_serve)
+
+### Identify requirements:
+Since we are running an offline service that will only handle concurrent users at entrances to exam halls, the throughput of the system is not very important. 
+However we would like a short latency so that our system does not cause delays as each student is entering the classroom 1 by 1. These are the requirements
+Throughput: > 10 req/sec
+Latency: < 500ms
+
+### Model optimizations to satisfy requirements
+
+### System optimizations to satisfy requirements
+
+## Unit 7: Evaluation and monitoring
+
+### Offline evaluation of model: 
+
+### Load test in staging: 
+
+### Online evaluation in canary:
+
+### Close the loop:
+
+### Define a business-specific evaluation:
+
+
+
+
 ## Facial Recognition system for student authentication at NYU
 
 # 

@@ -184,13 +184,13 @@ Deployed on a single-gpu setup.
 
 ### Extra files (for AMD GPU setup)
 
-- setup_amdgpu.sh  (alternative to setup_nvidia.sh)
+- `setup_amdgpu.sh`  (alternative to setup_nvidia.sh)
   Installs AMDGPU kernel drivers, ROCm toolkit, and SMI utilities for enabling AMD GPU support on Ubuntu.
 
-- install_requirement_amd.sh  (alternative to install_requirements.sh)
+- `install_requirement_amd.sh`  (alternative to install_requirements.sh)
   Sets up a virtual environment, installs ROCm-compatible PyTorch and dependencies from `requirement_amd.txt`, and patches MXNet for compatibility.
 
-- requirement_amd.txt  (alternative to requirement.txt)
+- `requirement_amd.txt`  (alternative to requirement.txt)
   Lists the Python dependencies required for training ArcFace on AMD GPUs, including MXNet, Torch, MLFlow, and system monitoring tools.
 
 ### Ignore files (not working)

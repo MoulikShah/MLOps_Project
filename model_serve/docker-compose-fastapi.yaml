@@ -1,19 +1,15 @@
-name: fastapi_test
+version: "3.8"
+
 services:
   fastapi_server:
     build:
-      context: /home/cc/serve-system-chi/fastapi_pt
+      context: /home/cc/MLOps_Project/model_serve/fastapi_pt
       dockerfile: Dockerfile
     container_name: fastapi_server
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
     ports:
-      - "8000:8000" # for HTTP requests
+      - "8000:8000"
+    volumes:
+      - /mnt/object:/mnt/object:ro
 
   jupyter:
     image: quay.io/jupyter/minimal-notebook:latest
@@ -21,6 +17,8 @@ services:
     ports:
       - "8888:8888"
     volumes:
-      - /home/cc/serve-system-chi/workspace:/home/jovyan/work # mount workspace
+      - /home/cc/serve-system-chi/workspace:/home/jovyan/work
+      - /mnt/object:/mnt/object:ro    # ← now notebooks can also see your object storage
     command: >
       bash -c "python3 -m pip install numpy && start-notebook.sh"
+

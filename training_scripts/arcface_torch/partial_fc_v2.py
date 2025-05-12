@@ -103,6 +103,13 @@ class PartialFC_V2(torch.nn.Module):
 
         return self.weight[self.weight_index]
 
+    @torch.no_grad()
+    def forward_test(self, embeddings: torch.Tensor) -> torch.Tensor:
+        norm_embeddings = normalize(embeddings)
+        norm_weight_activated = normalize(self.weight)
+        logits = linear(norm_embeddings, norm_weight_activated)
+        return logits
+
     def forward(
         self,
         local_embeddings: torch.Tensor,

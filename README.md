@@ -42,8 +42,8 @@ Here we assume to get feedback in 2 ways. Positive feedback will be automaticall
 For negative feedback there can be 1 of two cases - If the person does not get correctly recognized and the professor or staff has to manually verify, If a person manages to cheat the model and happens to get caught. we will specifically label data of similar looking people usnig label studio. rest of the negative feedback data wil be automated since we have ground truth labels.
 
 ### Define a business-specific evaluation:
-
-
+Number of people attmepting to cheat: If we happen to record the number of instances that a person has been caught cheating per year or semester, we can check these results pre and post our ML implementation. 
+if there is a decrease, we know that thee has been an increase in academic integrity.
 
 
 ## Facial Recognition system for student authentication at NYU

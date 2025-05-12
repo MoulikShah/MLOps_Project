@@ -56,6 +56,7 @@ Common dataset link: https://github.com/deepinsight/insightface/tree/master/reco
 
 # Unit 4 and 5: Model Training and Infrastructure
 
+```text
 Directory structure (for training part only)
 Project Root
 ├── docker-compose-train.yaml       # Compose file to build & run the training container
@@ -78,6 +79,7 @@ Project Root
     ├── promote_model.py            # Script to push final model to registry/storage
     └── (other training scripts and utility modules)
 
+```
 ## UNIT 4: Model Training
 
 ### Training Flow Overview

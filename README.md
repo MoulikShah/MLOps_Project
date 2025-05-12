@@ -51,26 +51,155 @@ Common dataset link: https://github.com/deepinsight/insightface/tree/master/reco
 | Persistent Volume  - 'block storage'   |                1 volume - 10GB                                  |       Needed to store model checkpoints, logs, retrained models, and OpenVINO outputs        |
 | Object Storage 'CHI@TACC Swift' |   1 volume - 50GB     |  Storing the static dataset
 
-## Detailed design plan
+## Implementation
 ---
 
-## Unit 3 and 4: Model training and infrastructure
+# Unit 4 and 5: Model Training and Infrastructure
 
-- We will employ mini-batch Stochastic Gradient Descent (SGD) for training, with the batch size determined by GPU memory. Gradient accumulation will be explored to simulate larger batch sizes if memory becomes a constraint.
-- To optimize memory usage, we will consider mixed-precision training (FP16 gradients with an FP32 optimizer) and monitor the memory footprint of the chosen optimizer.
-- To accelerate training, we will implement distributed data parallelism across multiple GPUs available on Chameleon. This involves:
-  - Replicating the model across each GPU.
-  - Dividing the training data into slices, with each GPU processing a different slice.
-  - Synchronizing gradients across all GPUs using an all-reduce operation to ensure consistent model updates.
-  - Utilizing PyTorch Distributed to manage data distribution and gradient communication.
-- Training will be conducted on the Chameleon cloud platform using bare-metal GPU nodes, in our case 4x v100 GPUs. A Jupyter notebook server on a reserved instance will be used for interactive development.
-- We will containerize our environment with Docker, including all dependencies (Python, PyTorch, dataset libraries) to ensure reproducibility. MLFlow will track experiments (parameters, metrics, checkpoints, code versions) via a tracking server accessible through a specified port.
-- For distributed training, we will explore Ray and potentially Ray Tune for hyperparameter tuning, following lab instructions for setup and job submission.
-- The face recognition datasets (MS1MV2 and VGGFace2) will be properly organized and mounted for access within the container. GPU and system performance will be monitored via Jupyter or the Chameleon dashboard, and resources will be properly released after training to avoid extra costs.
+## UNIT 4: Model Training
+
+### Training Flow Overview
+
+- `run.sh` is the entrypoint script that:
+  - Activates the Python virtual environment (`mlops_env`)
+  - Launches the training script by running:  
+    `python3 train_v2.py configs/ms1mv3_r50_onegpu.py`
+
+- `train_v2.py` is the main training driver script that:
+  - Loads training configuration from `ms1mv3_r50_onegpu.py`
+  - Initializes the dataset using a custom PyTorch `get_dataloader`
+    - Loads face images from class folders and applies preprocessing
+  - Constructs the face recognition model using a iResNet-50 backbone
+
+- The script executes a standard training loop
+
+- During training:
+  - Model and System metrics are recorded to monitor performance
+
+- MLFlow is used to log experiments:
+  - Tracks hyperparameters, training metrics, and test results
+  - Enables comparison between training runs through the MLFlow UI
+
+### Implemented the following as part of the Modeling
+
+- Batch_size variation experiments, monitored the GPU_Utilization through system metric logging in MLFlow. Found optimal batch_size giving maximum gpu_utilization.
+- Mixed Precision training using PyTorch's Automated Mixed Precision method, `torch.cuda.amp.grad_scaler.GradScaler`.
+- Gradient accumulation by updating weights only after `gradient_acc` number of steps.
+- Parallel programming (ddp) using `torch.nn.parallel.DistributedDataParallel`, successfully tested on AMD GPU.
+
+## UNIT 5: Training Infrastructure and Pipeline
+
+### 0. Setup MLFLOW server and MINIO storage on KVM@TACC
+
+Bring up the container docker-compose-block.yaml to setup persistent storage on KVM@TACC (which was created as part of the continuous pipeline with permanent float-ip on node1).
+
+### 1. Training Node Setup and start training (with bash scripts)
+
+Several shell scripts were used to automate the setup of the training environment on a GPU-enabled cloud instance:
+
+ Run
+ `chmod +x {script-name}.sh`
+ `./{script-name}.sh`
+ to execute the scripts.
+
+#### i. Install docker, rclone and complete object storage mounting
+
+- **setup_docker.sh**  
+  Installs Docker and adds the current user to the Docker group to enable container usage without `sudo`. Required for containerizing the training workflow.
+  
+- **setup_rclone.sh**  
+  Installs `rclone`, configures it to connect to the Chameleon object storage backend, and enables the `allow_other` setting for user-level FUSE mounts. Verifies access to the `chi_tacc` storage remote.
+
+- **mount_object_store.sh**  
+  Mounts the dataset from Chameleon object storage to `/mnt/object` using `rclone mount` with Swift optimizations. This makes the dataset available for containers to bind-mount during training. This path was bind-mounted into all containers to provide direct access to the data without copying.
+
+#### ii. Install NVIDIA toolkit and python environment for training
+
+- **setup_nvidia.sh**  
+  Installs the NVIDIA container toolkit and configures Docker to support GPU access within containers. Also installs `nvtop` for GPU monitoring.
+
+- **install_requirements.sh**  
+  Installs Python 3.8 and creates a virtual environment (`mlops_env`) for the training code. It installs all dependencies from `requirement.txt` and applies a patch to fix a known MXNet compatibility issue with NumPy.
+
+#### iii. Start training
+- **run.sh**
+  Brings up the environment, runs the file `train_v2.py` with suitable config file which starts training.
+
+#### iv. Model Saving and Registering
+- **train_v2.py**
+  Stores training logs and artifacts to the `MLFLOW_TRACKING_URI` internally.
+
+- **promote_model.py**
+  Registers a model for further stages.
+
+### 2. Docker Container for Training (Training with container instead of bash script)
+
+- **Defined in**: `docker-compose-train.yaml`
+- **Built from**: Custom `Dockerfile` tailored for training
+
+Just bring up this training container to start training. (Note that you still need to complete `Install docker, rclone and complete object storage mounting` step before bringing up this container).
+
+ Run
+ `docker compose -f docker-compose-train.yaml up --build`
+ to bring up the container.
+
+#### i. Dockerfile Overview
+
+The `Dockerfile` used for building the `face-trainer` container consolidates and automates the setup tasks originally performed by the shell scripts (`setup_docker.sh`, `setup_nvidia.sh`, `install_requirements.sh`).
+
+- **Base Image and System Packages**  
+  The Dockerfile starts from a base CUDA image and installs essential system packages including Python 3.8, `build-essential`, `git`, `curl`, and others needed for compiling and running ML libraries.
+
+- **Python Environment Setup**  
+  Python 3.8 is set up using `deadsnakes/ppa`, and a virtual environment is created inside the container at `/app/mlops_env`. This replaces the functionality of `install_requirements.sh`.
+
+- **Dependency Installation**  
+  Python packages are installed from `requirement.txt`, which includes dependencies like PyTorch, MXNet, and MLFlow needed for training the ArcFace model. This mimics the pip install step in `install_requirements.sh`.
+
+- **MXNet Patch**  
+  The same patch applied manually in the `.sh` script to fix the `onp.bool_` alias issue in `mxnet/numpy/utils.py` is also performed in the Dockerfile automatically.
+
+- **Working Directory and Entrypoint**  
+  The working directory is set to `/app`, and the container is configured to activate the Python environment before running training code (if CMD or entrypoint is specified in Compose).
+
+### ii. docker-compose-train.yaml overview
+- Defines the `face-trainer` container.
+- Builds from the Dockerfile with 96GB shared memory and GPU access.
+- Mounts:
+  - `/mnt/object → /app/datasets` (data)
+  - `face_runs → /app/runs` (logs)
+  - `face_weights → /app/weights` (model checkpoints)
+  - `./training_scripts → /app/training_scripts` (code)
+- Declares `face_runs` and `face_weights` as Docker named volumes (auto-created if missing).
+
+
+### 3. Ray Cluster Deployment
+
+Deployed on a single-gpu setup.
+
+- The `docker-compose-ray-cuda-single-gpu.yaml` file spins up a minimal Ray cluster on a single node:
+  - `ray-head`: Head node with ports exposed for dashboard (`8265`) and cluster communication (`6379`)
+  - `ray-worker`: GPU-enabled worker container using the `rayproject/ray:2.42.1-gpu` image
+- Both containers mount the dataset via `/mnt/object`.
+
+### Extra files (for AMD GPU setup)
+
+- setup_amdgpu.sh  (alternative to setup_nvidia.sh)
+  Installs AMDGPU kernel drivers, ROCm toolkit, and SMI utilities for enabling AMD GPU support on Ubuntu.
+
+- install_requirement_amd.sh  (alternative to install_requirements.sh)
+  Sets up a virtual environment, installs ROCm-compatible PyTorch and dependencies from `requirement_amd.txt`, and patches MXNet for compatibility.
+
+- requirement_amd.txt  (alternative to requirement.txt)
+  Lists the Python dependencies required for training ArcFace on AMD GPUs, including MXNet, Torch, MLFlow, and system monitoring tools.
+
+### Ignore files (not working)
+
+- `docker-compose-ray-rocm` and `dockerfile.ray-rocm`
 
 ---
 
-## Unit 6: Model serving:
+# Unit 6: Model serving:
 
 ### -Serving from an API endpoint:
 We have wrapped our model in a fastapi backend application which runs on a seperate node_mode_serve_project-14 so that its performance is uninterrupted by trainnig and testing. It has a simple '/compare' endpoint which taks 2 image files as input, creates their embeddings using the model and then checks if they are the ame using a threshold for cosine similarity for the embeddings. 

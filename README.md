@@ -264,9 +264,10 @@ simulated through bash script [here](https://github.com/MoulikShah/MLOps_Project
 
 
 ### -Load test in staging: 
-After our model passes all the offline tests,, it will be moved to the staging area, here we will pas in a large subset for load testing and display the results: 
+After our model passes all the offline tests,, it will be moved to the staging area, here we will pass in dummy data for load testing and display the results: 
   Throughput 
   Latency
+We take model from ml flow registry and run our load tests, if it passes we promote the model to Canary env - [bash file](https://github.com/MoulikShah/MLOps_Project/tree/main/eval_testing/load_test.sh)
 
 ### -Online evaluation in canary:
 Here we will conduct an online evaluation, which is when we use data similar to real users, (ages < 35, ethnicity split: 1/3rd Indian, 1/3rd Asian, 1/3rd white and black). 

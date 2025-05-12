@@ -72,17 +72,17 @@ Common dataset link: https://github.com/deepinsight/insightface/tree/master/reco
 
 ## Unit 6: Model serving:
 
-### Serving from an API endpoint:
+### -Serving from an API endpoint:
 We have wrapped our model in a fastapi backend application which runs on a seperate node_mode_serve_project-14 so that its performance is uninterrupted by trainnig and testing. It has a simple '/compare' endpoint which taks 2 image files as input, creates their embeddings using the model and then checks if they are the ame using a threshold for cosine similarity for the embeddings. 
 You can find the application code and the docker-compose file to create a container and run the app and the other serving infrastructure at [model_serve](https://github.com/MoulikShah/MLOps_Project/tree/main/model_serve)
 
-### Identify requirements:
+### -Identify requirements:
 Since we are running an offline service that will only handle concurrent users at entrances to exam halls, the throughput of the system is not very important. 
 However we would like a short latency so that our system does not cause delays as each student is entering the classroom 1 by 1. These are the requirements
 Throughput: > 10 req/sec
 Latency: < 500ms
 
-### Model optimizations to satisfy requirements:
+### -Model optimizations to satisfy requirements:
 Since we want to explore and use different optimization techniques and execution providers, we will be converting our model to Onnx format.
 
 **Graph optimizations:** We will be using graph optimizations like fusing - combining common subsequent operations and constant folding - precomputing operations where inputs are constant.  
@@ -90,14 +90,14 @@ Since these optimizations don't reduce performance, we will implement them.
 
 **Quantizations:** Since we require high accuracy and are trying to prevent false negatives we will experiment with conservative quantization but will most likely not use any quantization techniques.
 
-### System optimizations to satisfy requirements:
+### -System optimizations to satisfy requirements:
 **Backend:** We will use a simple fastapi server as the backend as it is simple, light and matches our throughput/latency requirements  
 
 ---
 
 ## Unit 7: Evaluation and monitoring
 
-### Offline evaluation of model: 
+### -Offline evaluation of model: 
 We have the following tests for offline monitoring: 
 1) Standard tests: This consists of tests with postiive pairs (2 images of same person) and negative pairs (1 anchor image of the person with a randomly selected image).
    Domain specific tests: pThese results are more significant as they show ius how the odel will behave with real world inputs. Here we used a pretrained model, deepface to obtain age gender and ethnicity for each identity. Positive pairs for people under the eage of 30 were taken.
@@ -108,20 +108,20 @@ We have the following tests for offline monitoring:
 
 The results of this testing and evaluation will be automatically saved in MLFlow which will be accessed from a through a floating IP. If a certain threshold of each test type is passed, the model will be automatically saved to the model registry via MLFlow.
 
-### Load test in staging: 
+### -Load test in staging: 
 After our model passes all the offline tests,, it will be moved to the staging area, here we will pas in a large subset for load testing and display the results: 
   Throughput 
   Latency
 
-### Online evaluation in canary:
+### -Online evaluation in canary:
 Here we will conduct an online evaluation, which is when we use data similar to real users, (ages < 35, ethnicity split: 1/3rd Indian, 1/3rd Asian, 1/3rd white and black). 
 Our data will be sent to our base model as well as our newly trained model, and we will compare our results, new model will only be moved forward if it fairs better than the base model.
 
-### Close the loop:
+### -Close the loop:
 Here we assume to get feedback in 2 ways. Positive feedback will be automatically sent back as a v small subset of correctly predicted cases.
 For negative feedback there can be 1 of two cases - If the person does not get correctly recognized and the professor or staff has to manually verify, If a person manages to cheat the model and happens to get caught. we will specifically label data of similar looking people usnig label studio. rest of the negative feedback data wil be automated since we have ground truth labels.
 
-### Business specific metrics:
+### -Business specific metrics:
 - Improvement in security and reduced fraud/cheating:  
 If we happen to record the number of instances that a person has been caught cheating per year or semester, we can check these results pre and post our ML implementation. 
 if there is a decrease, we know that thee has been an increase in academic integrity.
@@ -131,9 +131,9 @@ In place of taking manual attendance we should see a much faster system with aut
 
 ---
 
-### Data pipeline
+## Unit 8: Data pipeline
 
-#### Persistent Storage
+### Persistent Storage
 
 - We provision block storage volumes on **Chameleon Cloud** that are mounted to both training and inference nodes.
 - Storage is independent of containers, so data is preserved even if compute instances are recreated. It will be used to store:
@@ -143,7 +143,7 @@ In place of taking manual attendance we should see a much faster system with aut
 
 ---
 
-#### Offline Data Management
+### Offline Data Management
 
 - Offline data includes:
   - Pre-registered student facial images
@@ -153,29 +153,106 @@ In place of taking manual attendance we should see a much faster system with aut
 
 ---
 
-#### Data Pipelines
+## Unit 8: Data pipeline
 
-- **Extract**:
-  - Images from the dataset are stored in persistent storage
-- **Transform**:
-  - Preprocessing: resize, normalize, encode to embeddings
-  - Label verification or correction
-  - Format conversion to model input structure
-- **Load**:
-  - Transformed data is moved and loaded for the model to train on
-- False positives and false negatives from user feedback from the inference node will be moved to persistent storage to be used in re-training
+### Persistent Storage Infrastructure
 
----
+Our face recognition system utilizes *Chameleon Cloud's persistent storage* to manage large-scale datasets and artifacts, decoupling data from compute resources.
 
-#### Online Data
+#### Object Storage (CHI@TACC Swift)
+
+- *Size:* 20GB allocated for immutable datasets  
+- *Container Name:* object-persist-project-14  
+- *Access Method:* Mounted as *read-only* via rclone  
+- *Contents:*
+  - MS1MV2 dataset (~5.8M images, 85K identities)
+  - Test verification sets categorized by:
+    - Ethnicity
+    - Quality factors
+
+#### Block Storage (KVM@TACC)
+
+- *Size:* 18GB allocated for mutable data  
+- *Volume Name:* block-persist-group14  
+- *Access Method:* Mounted as ext4 at /mnt/block  
+- *Contents:*
+  - Model checkpoints
+  - Generated face embeddings
+  - Evaluation metrics and logs
+  - MLflow experiment tracking artifacts
+
+
+### Offline Data: Training Data Organization
+
+Face recognition datasets follow a strict organizational structure, enabling efficient training and evaluation across multiple benchmarks and applications.
+
+### Data Pipeline Workflow
+
+#### 1. 🧪 Extract
+
+- *MS1MV2:* Subset of MS-Celeb-1M (cleaned)
+- *VGGFace2:* Scraped from Google Images
+- *NYU Test Data:* Synthetically generated with desired distributions
+
+#### 2. 🧼 Transform
+
+- Face detection using *MTCNN*  
+- Image normalization: 112x112 px, RGB  
+- Sample filtering based on:
+  - Clarity
+  - Alignment
+  - Size  
+- Data augmentation:
+  - Brightness & contrast shifts
+  - Rotations
+
+#### 3. 🧵 Load
+
+- Transformed data uploaded to *object storage*
+- Training pipeline:
+  - Loads batches with efficient caching
+  - Stores generated *embeddings* on block storage
+
+
+#### Data Quality and Validation
+
+- Pre-processing checks for:
+  - Minimum face clarity & alignment
+  - Balanced demographics (ethnicity, gender, age)
+  - Duplicate removal
+
+#### Production Data Simulation
+
+Simulated student check-in scenarios include:
+
+- Dynamic lighting (e.g., classroom lighting)
+- Occlusions: Glasses, masks, hair
+- Motion blur (low to high)
+- Random batch arrivals
+
+
+#### Data Flow for Retraining
+
+- *False negatives* captured via feedback API  
+- Problem samples saved to block storage  
+- Regular retraining incorporates flagged cases  
+- New student data handled by separate onboarding pipeline
+
+#### 🛠 Scripts and Tools
+
+- mount_object_store.sh: Mounts object storage with caching optimizations  
+- setup_rclone.sh: Sets up rclone credentials  
+- Docker containers mount storage volumes for training pipeline access
+
+### Online Data
 
 - A simulated stream mimics real-time images captured at exam entry gates
 
 ---
 
-### Continuous X
+## Unit 3: Continuous X
 
-#### Infrastructure-as-Code
+### Infrastructure-as-Code
 
 - All infrastructure is provisioned using Terraform for resources, IPs and volumes on Chameleon Cloud.
 - Ansible Playbooks are used to configure and deploy:
@@ -186,7 +263,7 @@ In place of taking manual attendance we should see a much faster system with aut
 
 ---
 
-#### Cloud-Native Architecture
+### Cloud-Native Architecture
 
 - **Immutable Infrastructure**:
   - Infrastructure changes are made via pull requests to Git, then re-provisioned.
@@ -199,14 +276,14 @@ In place of taking manual attendance we should see a much faster system with aut
 
 ---
 
-#### CI/CD and Continuous Training Pipeline
+### CI/CD and Continuous Training Pipeline
 
 - ArgoCD power our CI/CD and retraining pipelines:
   - Triggered on schedule (ideally per semester to include new students).
 
 ---
 
-#### Staged Deployment
+### Staged Deployment
 
 - Services will be promoted from one environment to another using AgroCD.
 - **Staging**:

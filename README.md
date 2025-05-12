@@ -223,7 +223,7 @@ Deployed on a single-gpu setup.
 
 ---
 
-# Unit 6: Model serving:
+## Unit 6: Model serving:
 
 ### -Serving from an API endpoint:
 We have wrapped our model in a fastapi backend application which runs on a seperate node_mode_serve_project-14 so that its performance is uninterrupted by trainnig and testing. It has a simple '/compare' endpoint which taks 2 image files as input, creates their embeddings using the model and then checks if they are the ame using a threshold for cosine similarity for the embeddings. 

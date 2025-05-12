@@ -260,6 +260,11 @@ We have the following tests for offline monitoring:
 4) Template based tests:
 
 The results of this testing and evaluation will be automatically saved in MLFlow which will be accessed from a through a floating IP. If a certain threshold of each test type is passed, the model will be automatically saved to the model registry via MLFlow.
+The offline tests are documented [here](https://github.com/MoulikShah/MLOps_Project/tree/main/eval_testing/tests) 
+
+The entire pipeline from getting a model from ML Flow after training, copying it to node to run offline tests, saving results of offline tests to mlflow, if passed registering the model and movng to staging- 
+simulated through bash script [here](https://github.com/MoulikShah/MLOps_Project/tree/main/eval_testing/offline_tests.sh)
+
 
 ### -Load test in staging: 
 After our model passes all the offline tests,, it will be moved to the staging area, here we will pas in a large subset for load testing and display the results: 

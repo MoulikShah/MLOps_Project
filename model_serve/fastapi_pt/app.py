@@ -11,7 +11,7 @@ import sys
 import os
 from pathlib import Path
 
-from iresnet import iresnet100  # Adjust import path as needed
+from backbones.iresnet import iresnet100  # Adjust import path as needed
 
 app = FastAPI(title="Face Similarity API",
               description="API for checking if two face images belong to the same person",

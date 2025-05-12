@@ -1,0 +1,14 @@
+# fastapi_pt/requirements.txt
+--extra-index-url https://download.pytorch.org/whl/cpu
+
+fastapi==0.115.9
+numpy==1.26.4
+opencv-python-headless==4.11.0.86
+python-multipart==0.0.6
+
+torch==2.2.0
+torchvision==0.17.0
+torchaudio==2.2.0
+
+uvicorn==0.25.0
+

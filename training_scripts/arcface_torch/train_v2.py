@@ -1,6 +1,7 @@
 import argparse
 import logging
 import os
+import time
 from datetime import datetime
 
 import numpy as np
@@ -20,6 +21,8 @@ from utils.utils_config import get_config
 from utils.utils_distributed_sampler import setup_seed
 from utils.utils_logging import AverageMeter, init_logging
 from torch.distributed.algorithms.ddp_comm_hooks.default_hooks import fp16_compress_hook
+import torch.nn.functional as F
+
 
 assert torch.__version__ >= "1.12.0"
 
@@ -59,6 +62,8 @@ def create_symlink_dataset(full_data_root, sampled_json_path, output_symlink_roo
 
     print(f"✅ Linked {linked_count} class folders.")
     return output_symlink_root
+
+
 
 def main(args):
     assert torch.cuda.is_available()
@@ -158,6 +163,7 @@ def main(args):
     loss_am = AverageMeter()
     amp = torch.cuda.amp.grad_scaler.GradScaler(growth_interval=100)
 
+    start_time = time.time()
     for epoch in range(start_epoch, cfg.num_epoch):
         if isinstance(train_loader, DataLoader):
             train_loader.sampler.set_epoch(epoch)
@@ -223,11 +229,49 @@ def main(args):
 
         if cfg.dali:
             train_loader.reset()
+    end_time = time.time()
+    training_duration = end_time - start_time
+
+    reduced_data_path_test = "/home/cc/dataset_test/"  # or any temp path
+    filtered_root_test = create_symlink_dataset(cfg.test, cfg.class_json, reduced_data_path_test)
+
+    test_loader = get_dataloader(
+        filtered_root_test, local_rank=local_rank, batch_size=cfg.batch_size, dali=cfg.dali,
+        dali_aug=False, seed=cfg.seed, num_workers=cfg.num_workers, sampled_classes_json=cfg.class_json
+    )
+
+    def evaluate_model(model, test_loader):
+        model.eval()
+        correct = 0
+        total = 0
+        loss_sum = 0.0
+        with torch.no_grad():
+            for images, labels in test_loader:
+                images = images.cuda()
+                labels = labels.cuda()
+                # outputs = model(images)
+                embeddings = model(images)
+                outputs = module_partial_fc.forward_test(embeddings)
+                loss = F.cross_entropy(outputs, labels)
+                loss_sum += loss.item() * labels.size(0)
+                preds = torch.argmax(outputs, dim=1)
+                correct += (preds == labels).sum().item()
+                total += labels.size(0)
+        avg_loss = loss_sum / total
+        accuracy = correct / total
+        return avg_loss, accuracy
+
 
     if rank == 0:
         path_module = os.path.join(cfg.output, "model.pt")
         torch.save(backbone.module.state_dict(), path_module)
         mlflow.pytorch.log_model(backbone.module, "final_model")
+        test_loss, test_acc = evaluate_model(backbone.module, test_loader)
+        mlflow.log_metrics({"training_time": training_duration})
+        mlflow.log_metrics({
+            "train_loss": test_loss,
+            "train_accuracy": test_acc
+        })
         mlflow.end_run()
 
         if wandb_logger and cfg.save_artifacts:

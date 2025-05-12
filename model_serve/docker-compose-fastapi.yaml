@@ -19,6 +19,7 @@ services:
     volumes:
       - /home/cc/serve-system-chi/workspace:/home/jovyan/work
       - /mnt/object:/mnt/object:ro    # ← now notebooks can also see your object storage
+      - ./model_serve:/home/jovyan/model_serve:ro
     command: >
       bash -c "python3 -m pip install numpy && start-notebook.sh"
 

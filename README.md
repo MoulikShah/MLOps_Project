@@ -58,7 +58,7 @@ Business metrics:
 
 ## System diagram
 
-![System Diagram](MLOps.jpg)
+![System Diagram](MLOps.png)
 
 
 ## Summary of outside materials

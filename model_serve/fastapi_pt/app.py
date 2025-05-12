@@ -19,7 +19,7 @@ app = FastAPI(title="Face Similarity API",
 
 # Global model variable
 # Load the Food11 model
-MODEL_PATH = "iresnet100.pth"
+MODEL_PATH = "model.pth"
 model = iresnet100(pretrained=False)
 model.load_state_dict(torch.load(MODEL_PATH, map_location='cpu'))
 model.eval()

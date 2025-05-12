@@ -133,28 +133,6 @@ In place of taking manual attendance we should see a much faster system with aut
 
 ## Unit 8: Data pipeline
 
-### Persistent Storage
-
-- We provision block storage volumes on **Chameleon Cloud** that are mounted to both training and inference nodes.
-- Storage is independent of containers, so data is preserved even if compute instances are recreated. It will be used to store:
-  - Model checkpoints
-  - Final trained models
-  - Training logs and evaluation metrics
-
----
-
-### Offline Data Management
-
-- Offline data includes:
-  - Pre-registered student facial images
-  - Synthetic images for model robustness evaluation
-  - Public datasets for pretraining
-- Copy of the above-mentioned data will be stored on persistent disk
-
----
-
-## Unit 8: Data pipeline
-
 ### Persistent Storage Infrastructure
 
 Our face recognition system utilizes *Chameleon Cloud's persistent storage* to manage large-scale datasets and artifacts, decoupling data from compute resources.

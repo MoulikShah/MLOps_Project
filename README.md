@@ -235,4 +235,29 @@ In place of taking manual attendance we should see a much faster system with aut
   - Model promoted if no degradation is observed during canary phase.
 
 
+## Project Structure Overview
+
+### `Terraform/`
+
+This directory contains the infrastructure-as-code configuration using **Terraform** to provision resources on Chameleon Cloud.
+Different subdirectories have the code for provisioning resources on different sites.
+
+- `main.tf`: Defines the virtual machines (VMs), their images, flavors (e.g., `m1.medium`), networks, and ports.
+- `variables.tf`: Declares input variables like `skylake_id` for lease binding.
+- `data.tf`: Fetches existing OpenStack resources like networks and security groups.
+- `outputs.tf`: Displays IPs and other relevant outputs after provisioning.
+- `terraform.tfvars`: Stores actual values for input variables used during apply.
+
+### `Ansible/`
+
+This directory contains automation scripts for configuring the provisioned infrastructure using **Ansible**.
+
+- `inventory.yml`: Defines the hosts (e.g., `node1`, `node2`) with their corresponding IP addresses and SSH users. Ansible uses this inventory to connect and manage each node.
+- `playbook.yml`: The main playbook that includes tasks for setting up the software environment on the nodes—such as installing Docker, Kubernetes components, and other dependencies.
+
+### `Setup Files/`
+
+The `Setup Files/` directory contains utility and scripts that prepare each node for further configuration and deployment. It is also used to clone this repository to the local Jupyter interface and install dependencies for terraform, ansible and kubernetes.
+
+
 
